@@ -1,4 +1,5 @@
 package Marc::Writer::File;
+# ABSTRACT: File Marc record writer
 
 use namespace::autoclean;
 use Moose;
@@ -53,3 +54,23 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
+
+=attr file
+
+Name of the file into which writing Marc::Record records using I<write> method.
+Before writing into the file, record is formatted using a formater.
+
+=attr binmode
+
+Binmode of the result file. Example:
+
+ my $writer = Marc::Writer->new(
+   binmode  => 'utf8',
+   file     => 'output.iso2709',
+   formater => Marc::Formater::Iso2709->new() );
+
+=head1 SEE ALSO
+
+=for :list
+* L<Marc>
+* L<Marc::Writer>

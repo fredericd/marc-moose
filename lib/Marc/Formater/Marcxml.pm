@@ -1,4 +1,5 @@
 package Marc::Formater::Marcxml;
+#ABSTRACT: Marc record formater into MARCXML
 
 use namespace::autoclean;
 use Moose;

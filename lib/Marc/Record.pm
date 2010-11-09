@@ -174,5 +174,5 @@ Called by Marc::Formater::Iso2709.
 =head1 SEE ALSO
 
 =for :list
-
 * L<Marc>
+* L<Marc::Field>

@@ -1,4 +1,5 @@
 package Marc::Parser::Isis;
+# ABSTRACT: Marc ISIS records parser
 use Moose;
 
 extends 'Marc::Parser';
@@ -84,11 +85,22 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-=head1 COPYRIGHT AND LICENSE
+=attr converter
 
-Copyright 2010 by Tamil, s.a.r.l.
+Converter used in order to convert characters encoding from the source records. This uses L<Text::Iconv>.
 
-L<http://www.tamil.fr>
+So:
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+ my $parser = Marc::Parser::Isis->new();
+
+is equivalent to:
+
+ my $parser = Marc::Parser::Isis->new(
+   converter => Text::Iconv->new( "cp857", "utf8" );
+
+=head1 SEE ALSO
+
+=for :list
+* L<Marc>
+* L<Marc::Parser>
+* L<Text::Iconv>

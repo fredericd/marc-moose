@@ -32,7 +32,6 @@ __PACKAGE__->meta->make_immutable;
 =head1 SEE ALSO
 
 =for :list
-
 * L<Marc>
 * L<Marc::Record>
 * L<Marc::Field>

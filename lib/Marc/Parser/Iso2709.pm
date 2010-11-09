@@ -1,4 +1,5 @@
 package Marc::Parser::Iso2709;
+# ABSTRACT: Parser for ISO2709 Marc records
 
 use namespace::autoclean;
 use Moose;
@@ -69,3 +70,7 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
+=head1 SEE ALSO
+=for :list
+* L<Marc>
+* L<Marc::Parser>

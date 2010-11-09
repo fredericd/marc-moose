@@ -1,4 +1,5 @@
 package Marc::Parser;
+# ABSTRACT: A Marc record parser base class
 
 use namespace::autoclean;
 use Moose;
@@ -30,3 +31,18 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
+=method begin
+
+=method end
+
+=method parse
+
+Return a Marc::Record object build from a parsed string
+
+=head1 SEE ALSO
+
+=for :list
+* L<Marc>
+* L<Marc::Parser::Iso2709>
+* L<Marc::Parser::Marcxml>
+* L<Marc::Parser::Isis>

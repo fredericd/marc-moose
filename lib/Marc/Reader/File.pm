@@ -1,4 +1,5 @@
 package Marc::Reader::File;
+# ABSTRACT: A Marc::Reader from a file
 
 use namespace::autoclean;
 use Moose;
@@ -42,3 +43,13 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
+=attr file
+
+Name of the file to read Marc::Record from. A error is thrown if the file
+does't exist.
+
+=head1 SEE ALSO
+
+=for :list
+* L<Marc>
+* L<Marc::Reader>

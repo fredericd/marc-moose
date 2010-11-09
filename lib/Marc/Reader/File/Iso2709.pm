@@ -1,4 +1,5 @@
 package Marc::Reader::File::Iso2709;
+# ABSTRACT: File reader for Marc record from ISO2709 file
 
 use namespace::autoclean;
 use Moose;

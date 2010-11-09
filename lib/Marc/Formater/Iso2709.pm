@@ -1,4 +1,5 @@
 package Marc::Formater::Iso2709;
+# ABSTRACT: Marc record formater into ISO 2709 format
 
 use namespace::autoclean;
 use Moose;

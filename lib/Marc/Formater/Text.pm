@@ -1,4 +1,5 @@
 package Marc::Formater::Text;
+# ABSTRACT: Marc record formater into a text representation
 
 use namespace::autoclean;
 use Moose;
