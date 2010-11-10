@@ -34,7 +34,10 @@ ok( $field_100->subfield('e') eq 'Editor', "subfield method on 2nd letter in sca
 ok( $record->append($field_100), "append a field to the record" );
 my $back;
 ok( $back = $record->field('100'), "get back the field by its tag" );
-cmp_ok( $field_100, '~~', $back, 'return field is the same' );
+ok(
+    $field_100->subfield('a') eq $back->subfield('a')
+     && $field_100->subfield('e') eq $back->subfield('e'),
+    'return field is the same' );
 
 my $field_245 = Marc::Field::Std->new(
     tag  => '245',
