@@ -1,12 +1,12 @@
-package Marc::Reader::File::Iso2709;
-# ABSTRACT: File reader for Marc record from ISO2709 file
+package Marc::Reader::File::Marcxml;
+# ABSTRACT: File reader for Marc record from MARCXML file
 
 use namespace::autoclean;
 use Moose;
 
 use Carp;
 use Marc::Record;
-use Marc::Parser::Iso2709;
+use Marc::Parser::Marcxml;
 
 extends 'Marc::Reader::File';
 
@@ -14,7 +14,7 @@ extends 'Marc::Reader::File';
 has parser => ( 
     is => 'rw', 
     isa => 'Marc::Parser',
-    default => sub { Marc::Parser::Iso2709->new() },
+    default => sub { Marc::Parser::Marcxml->new() },
 );
 
 
@@ -27,11 +27,11 @@ override 'read' => sub {
 
     return if eof($fh);
 
-    local $/ = "\x1D"; # End of record
+    local $/ = "</record>"; # End of record
     my $raw = <$fh>;
-
-    # remove illegal garbage that sometimes occurs between records
-    $raw =~ s/^[ \x00\x0a\x0d\x1a]+//;
+    
+    # Skip <collection if present
+    $raw =~ s/<(\/*)collection.*>//;
 
     return $self->parser->parse( $raw );
 };
