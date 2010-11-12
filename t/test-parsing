@@ -66,8 +66,12 @@ my $raw_xml = <<EOS;
 EOS
 
 
-
+# Number of time the above record is parsed
 my $max = 5000;
+
+# Tested SAX parsers
+my @xml_parsers = qw/ XML::LibXML::SAX XML::SAX::Expat XML::SAX::ExpatXS /;
+
 
 sub parse_with_marc_moose {
     my $parser = MARC::Moose::Parser::Marcxml->new();
@@ -75,29 +79,38 @@ sub parse_with_marc_moose {
     for ( my $count = 0; $count < $max; $count++ ) {
         my $record = $parser->parse( $raw_xml );
     }
-    print "Parsed $max records from XML using MARC::Moose : ", gettimeofday - $start, "\n";
+    print "Parsed $max records from XML using MARC::Moose (pure Perl): ",
+          gettimeofday - $start, "\n";
 }
 
 
 sub parse_with_marc_moose_sax {
-    my $parser = MARC::Moose::Parser::MarcxmlSax->new();
-    my $start = gettimeofday;
-    for ( my $count = 0; $count < $max; $count++ ) {
-        my $record = $parser->parse( $raw_xml );
+    for my $sax_parser ( @xml_parsers ) {
+        $XML::SAX::ParserPackage = $sax_parser;
+        my $parser = MARC::Moose::Parser::MarcxmlSax->new();
+        my $start = gettimeofday;
+        for ( my $count = 0; $count < $max; $count++ ) {
+            my $record = $parser->parse( $raw_xml );
+        }
+        print "Parsed $max records from XML using MARC::Moose and ",
+              "$sax_parser : ", gettimeofday - $start, "\n";
     }
-    print "Parsed $max records from XML using MARC::Moose SAX : ", gettimeofday - $start, "\n";
 }
 
 
 sub parse_with_marc {
-    my $count = 0;
-    my $start = gettimeofday;
-    for ( my $count = 0; $count < $max; $count++ ) {
-        my $record = MARC::Record->new_from_xml( $raw_xml );
-        $count++;
-        last if $count == $max;
+    for my $sax_parser ( @xml_parsers ) {
+        $XML::SAX::ParserPackage = $sax_parser;
+        my $count = 0;
+        my $start = gettimeofday;
+        for ( my $count = 0; $count < $max; $count++ ) {
+            my $record = MARC::Record->new_from_xml( $raw_xml );
+            $count++;
+            last if $count == $max;
+        }
+        print "Parsed $max records from XML using MARC and ",
+              "$sax_parser : ", gettimeofday - $start, "\n";
     }
-    print "Read $max records from XML using MARC ", gettimeofday - $start, "\n";
 }
 
 parse_with_marc_moose_sax();
