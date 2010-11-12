@@ -1,4 +1,4 @@
-package MARC::Moose::Parser::MARC::MoosexmlSax;
+package MARC::Moose::Parser::MarcxmlSax;
 # ABSTRACT: Parser for MARXML records using SAX parser
 
 use namespace::autoclean;
@@ -48,3 +48,4 @@ __PACKAGE__->meta->make_immutable;
 =for :list
 * L<MARC::Moose>
 * L<MARC::Moose::Parser>
+* L<MARC::Moose::Parser::Marcxml>
