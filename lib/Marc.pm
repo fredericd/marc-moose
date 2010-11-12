@@ -29,6 +29,12 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 DESCRIPTION
 
+=head1 WARNINGS
+
+MARC records are expected to be UTF-8 encoded. It won't work if it isn't.
+Parsed records MUST be UTF-8. If you don't have UTF-8 records, write a specific
+reader or use a generic tool like yaz-marcdump before loading records.
+
 =head1 SEE ALSO
 
 =for :list
@@ -40,11 +46,13 @@ __PACKAGE__->meta->make_immutable;
 * L<Marc::Reader>
 * L<Marc::Reader::File>
 * L<Marc::Reader::File::Iso2709>
+* L<Marc::Reader::File::Marcxml>
 * L<Marc::Reader::File::Isis>
 * L<Marc::Writer>
 * L<Marc::Writer:File>
 * L<Marc::Parser>
 * L<Marc::Parser::Iso2709>
+* L<Marc::Parser::Marxml>
 * L<Marc::Parser::Isis>
 * L<Marc::Formater>
 * L<Marc::Formater::Iso2709>
