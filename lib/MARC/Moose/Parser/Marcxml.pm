@@ -8,18 +8,13 @@ extends 'MARC::Moose::Parser';
 
 use MARC::Moose::Field::Control;
 use MARC::Moose::Field::Std;
-use XML::Simple;
-
-has 'xs' => ( is => 'rw', default => sub {  XML::Simple->new() } );
 
 
 override 'parse' => sub {
     my ($self, $raw) = @_;
 
     return unless $raw;
-
-    my $ref = eval { $self->xs->XMLin($raw, forcearray => [ 'subfield' ] ) };
-    return undef if $@;
+    return undef unless $raw =~ /<record/;
 
     $raw =~ s/\n//g;
     $raw =~ s/>\s*</></g;
