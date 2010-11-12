@@ -1,0 +1,106 @@
+#!/usr/bin/perl
+
+use warnings;
+use strict;
+use YAML;
+use MARC::Moose::Record;
+use MARC::Moose::Parser::Marcxml;
+use MARC::Moose::Parser::MarcxmlSax;
+use MARC::File::XML;
+
+use Time::HiRes qw(gettimeofday);
+
+
+my $raw_xml = <<EOS;
+<record>
+  <leader>00675cam a22002051  4500</leader>
+  <controlfield tag="001">   10026159 </controlfield>
+  <controlfield tag="003">DLC</controlfield>
+  <controlfield tag="005">20050815184409.0</controlfield>
+  <controlfield tag="008">830916s1910    gw            000 0 ger  </controlfield>
+  <datafield tag="010" ind1=" " ind2=" ">
+    <subfield code="a">   10026159 </subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(OCoLC)9914473</subfield>
+  </datafield>
+  <datafield tag="040" ind1=" " ind2=" ">
+    <subfield code="a">DLC</subfield>
+    <subfield code="c">OCU</subfield>
+    <subfield code="d">OCU</subfield>
+    <subfield code="d">DLC</subfield>
+  </datafield>
+  <datafield tag="042" ind1=" " ind2=" ">
+    <subfield code="a">premarc</subfield>
+  </datafield>
+  <datafield tag="050" ind1="0" ind2="0">
+    <subfield code="a">PA6792.Z9</subfield>
+    <subfield code="b">G4</subfield>
+  </datafield>
+  <datafield tag="100" ind1="1" ind2=" ">
+    <subfield code="a">Germann, Peter.</subfield>
+  </datafield>
+  <datafield tag="245" ind1="1" ind2="4">
+    <subfield code="a">Die sogenannten Sententiae Varronis.</subfield>
+    <subfield code="c">Von Peter Germann.</subfield>
+  </datafield>
+  <datafield tag="260" ind1=" " ind2=" ">
+    <subfield code="a">Paderborn,</subfield>
+    <subfield code="b">F. Schöningh,</subfield>
+    <subfield code="c">1910.</subfield>
+  </datafield>
+  <datafield tag="300" ind1=" " ind2=" ">
+    <subfield code="a">2 p. l., 98 p., 1 l.</subfield>
+    <subfield code="c">24 cm.</subfield>
+  </datafield>
+  <datafield tag="440" ind1=" " ind2="0">
+    <subfield code="a">Studien zur Geschichte und Kultur des Altertums ...</subfield>
+    <subfield code="v">3. Bd., 6. Hft</subfield>
+  </datafield>
+  <datafield tag="600" ind1="1" ind2="0">
+    <subfield code="a">Varro, Marcus Terentius.</subfield>
+    <subfield code="k">Spurious and doubtful works.</subfield>
+    <subfield code="t">Sententiae Varronis.</subfield>
+  </datafield>
+</record>
+EOS
+
+
+
+my $max = 5000;
+
+sub parse_with_marc_moose {
+    my $parser = MARC::Moose::Parser::Marcxml->new();
+    my $start = gettimeofday;
+    for ( my $count = 0; $count < $max; $count++ ) {
+        my $record = $parser->parse( $raw_xml );
+    }
+    print "Parsed $max records from XML using MARC::Moose : ", gettimeofday - $start, "\n";
+}
+
+
+sub parse_with_marc_moose_sax {
+    my $parser = MARC::Moose::Parser::MarcxmlSax->new();
+    my $start = gettimeofday;
+    for ( my $count = 0; $count < $max; $count++ ) {
+        my $record = $parser->parse( $raw_xml );
+    }
+    print "Parsed $max records from XML using MARC::Moose SAX : ", gettimeofday - $start, "\n";
+}
+
+
+sub parse_with_marc {
+    my $count = 0;
+    my $start = gettimeofday;
+    for ( my $count = 0; $count < $max; $count++ ) {
+        my $record = MARC::Record->new_from_xml( $raw_xml );
+        $count++;
+        last if $count == $max;
+    }
+    print "Read $max records from XML using MARC ", gettimeofday - $start, "\n";
+}
+
+parse_with_marc_moose_sax();
+parse_with_marc_moose();
+parse_with_marc();
+
