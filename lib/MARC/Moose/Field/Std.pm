@@ -1,10 +1,10 @@
-package Marc::Field::Std;
+package MARC::Moose::Field::Std;
 # ABSTRACT: Standard Marc Field (tag >= 010)
 
 use namespace::autoclean;
 use Moose;
 
-extends 'Marc::Field';
+extends 'MARC::Moose::Field';
 
 use overload
     '%{}' => \&subfield;

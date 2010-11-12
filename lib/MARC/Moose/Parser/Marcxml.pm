@@ -1,13 +1,13 @@
-package Marc::Parser::Marcxml;
-# ABSTRACT: Parser for MARXML Marc records
+package MARC::Moose::Parser::Marcxml;
+# ABSTRACT: Parser for MARXML records
 
 use namespace::autoclean;
 use Moose;
 
-extends 'Marc::Parser';
+extends 'MARC::Moose::Parser';
 
-use Marc::Field::Control;
-use Marc::Field::Std;
+use MARC::Moose::Field::Control;
+use MARC::Moose::Field::Std;
 use XML::Simple;
 
 has 'xs' => ( is => 'rw', default => sub {  XML::Simple->new() } );
@@ -25,7 +25,7 @@ override 'parse' => sub {
     $raw =~ s/>\s*</></g;
     my @parts = split />/, $raw;
     my ($tag, $code, $ind1, $ind2);
-    my $record = Marc::Record->new();
+    my $record = MARC::Moose::Record->new();
     my @fields;
     while ( @parts ) {
         $_ = shift @parts;
@@ -40,7 +40,7 @@ override 'parse' => sub {
             my ($tag) = /tag="(.*)"/;
             $_ = shift @parts;
             s/<\/controlfield//;
-            push @fields, Marc::Field::Control->new( tag => $tag, value => $_ );
+            push @fields, MARC::Moose::Field::Control->new( tag => $tag, value => $_ );
             next;
         }
         if ( /^<datafield/ ) {
@@ -53,7 +53,7 @@ override 'parse' => sub {
                 s/<\/subfield//;
                 push @subf, [ $letter => $_ ];
             }
-            push @fields, Marc::Field::Std->new(
+            push @fields, MARC::Moose::Field::Std->new(
                 tag => $tag,
                 ind1 => $ind1,
                 ind2 => $ind2,
@@ -74,5 +74,5 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 SEE ALSO
 =for :list
-* L<Marc>
-* L<Marc::Parser>
+* L<MARC::Moose>
+* L<MARC::Moose::Parser>

@@ -1,13 +1,13 @@
-package Marc::Writer::File;
-# ABSTRACT: File Marc record writer
+package MARC::Moose::Writer::File;
+# ABSTRACT: File record writer
 
 use namespace::autoclean;
 use Moose;
 
 use Carp;
-use Marc::Record;
+use MARC::Moose::Record;
 
-extends 'Marc::Writer';
+extends 'MARC::Moose::Writer';
 
 has file => (
     is => 'rw',
@@ -17,7 +17,7 @@ has file => (
         #croak "File already exists: " . $file  if -e $file;
         $self->{file} = $file;
         open my $fh, '>',$self->file
-             or croak "Impossible to open file: " . $self->file;
+            or croak "Impossible to open file: " . $self->file;
         binmode $fh, $self->binmode;
         $self->fh($fh);
     }   
@@ -57,20 +57,21 @@ __PACKAGE__->meta->make_immutable;
 
 =attr file
 
-Name of the file into which writing Marc::Record records using I<write> method.
-Before writing into the file, record is formatted using a formater.
+Name of the file into which writing L<MARC::Moose::Record> records using
+I<write> method.  Before writing into the file, record is formatted using a
+formater.
 
 =attr binmode
 
 Binmode of the result file. Example:
 
- my $writer = Marc::Writer->new(
+ my $writer = MARC::Moose::Writer->new(
    binmode  => 'utf8',
    file     => 'output.iso2709',
-   formater => Marc::Formater::Iso2709->new() );
+   formater => MARC::Moose::Formater::Iso2709->new() );
 
 =head1 SEE ALSO
 
 =for :list
-* L<Marc>
-* L<Marc::Writer>
+* L<MARC::Moose>
+* L<MARC::Moose::Writer>

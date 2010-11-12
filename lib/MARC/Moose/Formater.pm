@@ -1,4 +1,4 @@
-package Marc::Formater;
+package MARC::Moose::Formater;
 # ABSTRACT: Base class to format Marc record
 
 use namespace::autoclean;
@@ -59,9 +59,9 @@ Returns a string containing a representation of a Marc record.
 
 =for :list
 
-* L<Marc>
-* L<Marc::Formater::Iso2709>
-* L<Marc::Formater::Marcxml>
-* L<Marc::Formater::Text>
-* L<Marc::Formater::Yaml>
+* L<MARC::Moose>
+* L<MARC::Moose::Formater::Iso2709>
+* L<MARC::Moose::Formater::Marcxml>
+* L<MARC::Moose::Formater::Text>
+* L<MARC::Moose::Formater::Yaml>
 

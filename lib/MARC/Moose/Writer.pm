@@ -1,5 +1,5 @@
-package Marc::Writer;
-# ABSTRACT: A base object to write somewhere Marc records
+package MARC::Moose::Writer;
+# ABSTRACT: A base object to write somewhere MARC::Moose records
 
 use namespace::autoclean;
 use Moose;
@@ -13,8 +13,8 @@ has count => (
 
 has formater => (
     is      => 'rw',
-    isa     => 'Marc::Formater',
-    default => sub { Marc::Formater::Text->new() }
+    isa     => 'MARC::Moose::Formater',
+    default => sub { MARC::Moose::Formater::Text->new() }
 );
 
 

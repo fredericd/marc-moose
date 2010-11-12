@@ -1,13 +1,13 @@
-package Marc::Parser::MarcxmlSax;
-# ABSTRACT: Parser for MARXML Marc records using SAX parser
+package MARC::Moose::Parser::MARC::MoosexmlSax;
+# ABSTRACT: Parser for MARXML records using SAX parser
 
 use namespace::autoclean;
 use Moose;
 
-extends 'Marc::Parser';
+extends 'MARC::Moose::Parser';
 
-use Marc::Field::Control;
-use Marc::Field::Std;
+use MARC::Moose::Field::Control;
+use MARC::Moose::Field::Std;
 use XML::Simple;
 
 has 'xs' => ( is => 'rw', default => sub {  XML::Simple->new() } );
@@ -21,14 +21,14 @@ override 'parse' => sub {
     my $ref = eval { $self->xs->XMLin($raw, forcearray => [ 'subfield' ] ) };
     return undef if $@;
 
-    my $record = Marc::Record->new();
+    my $record = MARC::Moose::Record->new();
     $record->_leader( $ref->{leader} );
     my @fields_control = map {
-        Marc::Field::Control->new( tag => $_->{tag}, value => $_->{content} );
+        MARC::Moose::Field::Control->new( tag => $_->{tag}, value => $_->{content} );
     } @{$ref->{controlfield}};
     my @fields_std = map {
         my @sf = map { [ $_->{code}, $_->{content} ] }  @{$_->{subfield}};
-        Marc::Field::Std->new(
+        MARC::Moose::Field::Std->new(
             tag  => $_->{tag},
             ind1 => $_->{ind1},
             ind2 => $_->{ind2},
@@ -46,5 +46,5 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 SEE ALSO
 =for :list
-* L<Marc>
-* L<Marc::Parser>
+* L<MARC::Moose>
+* L<MARC::Moose::Parser>

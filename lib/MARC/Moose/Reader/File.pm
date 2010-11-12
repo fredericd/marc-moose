@@ -1,13 +1,13 @@
-package Marc::Reader::File;
-# ABSTRACT: A Marc::Reader from a file
+package MARC::Moose::Reader::File;
+# ABSTRACT: A reader from a file
 
 use namespace::autoclean;
 use Moose;
 
 use Carp;
-use Marc::Record;
+use MARC::Moose::Record;
 
-extends 'Marc::Reader';
+extends 'MARC::Moose::Reader';
 
 has file => (
     is => 'rw',
@@ -45,11 +45,11 @@ __PACKAGE__->meta->make_immutable;
 
 =attr file
 
-Name of the file to read Marc::Record from. A error is thrown if the file
+Name of the file to read MARC::Moose::Record from. A error is thrown if the file
 does't exist.
 
 =head1 SEE ALSO
 
 =for :list
-* L<Marc>
-* L<Marc::Reader>
+* L<MARC::Moose>
+* L<MARC::Moose::Reader>

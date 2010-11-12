@@ -5,12 +5,12 @@ use warnings;
 
 use Test::More tests => 16;
 
-use Marc::Record;
-use Marc::Field;
-use Marc::Field::Control;
-use Marc::Field::Std;
-use Marc::Parser::Marcxml;
-use Marc::Reader::File::Marcxml;
+use MARC::Moose::Record;
+use MARC::Moose::Field;
+use MARC::Moose::Field::Control;
+use MARC::Moose::Field::Std;
+use MARC::Moose::Parser::Marcxml;
+use MARC::Moose::Reader::File::Marcxml;
 use YAML;
 
 my $xml_chunk = <<EOS;
@@ -105,7 +105,7 @@ my $xml_chunk = <<EOS;
 </record>
 EOS
 
-ok ( my $parser = Marc::Parser::Marcxml->new(), "Marc::Parser::Marcxml instantiated" );
+ok ( my $parser = MARC::Moose::Parser::Marcxml->new(), "MARC::Moose::Parser::MARC::Moosexml instantiated" );
 ok ( my $record = $parser->parse( $xml_chunk ), "Chunk of XML record parsed" );
 ok ( @{$record->fields} == 20, "Correct number of fields retrieved" );
 ok ( $record->leader eq '01529    a2200217   4500', 'Control field correctly parsed' );
@@ -119,7 +119,7 @@ ok ( $subf->[0][0] eq 'a' && $subf->[0][1] eq 'Macroeconomics:' &&
      '245 subfields are valids' );
 
 # Read biblio file which contains 4 records
-ok( my $reader = Marc::Reader::File::Marcxml->new( file => 't/biblios.xml' ),
+ok( my $reader = MARC::Moose::Reader::File::Marcxml->new( file => 't/biblios.xml' ),
     'Reader created on biblios.xml file' );
 ok( $record = $reader->read(), "Read first record" );
 ok( $record = $reader->read(), "Read second record" );

@@ -1,20 +1,20 @@
-package Marc::Reader::File::Iso2709;
-# ABSTRACT: File reader for Marc record from ISO2709 file
+package MARC::Moose::Reader::File::Iso2709;
+# ABSTRACT: File reader for MARC::Moose record from ISO2709 file
 
 use namespace::autoclean;
 use Moose;
 
 use Carp;
-use Marc::Record;
-use Marc::Parser::Iso2709;
+use MARC::Moose::Record;
+use MARC::Moose::Parser::Iso2709;
 
-extends 'Marc::Reader::File';
+extends 'MARC::Moose::Reader::File';
 
 
 has parser => ( 
     is => 'rw', 
-    isa => 'Marc::Parser',
-    default => sub { Marc::Parser::Iso2709->new() },
+    isa => 'MARC::Moose::Parser',
+    default => sub { MARC::Moose::Parser::Iso2709->new() },
 );
 
 

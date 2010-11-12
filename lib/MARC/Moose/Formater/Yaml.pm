@@ -1,13 +1,13 @@
-package Marc::Formater::Yaml;
+package MARC::Moose::Formater::Yaml;
 # ABSTRACT: Marc record formater into YAML representation
 
 use namespace::autoclean;
 use Moose;
 
-extends 'Marc::Formater';
+extends 'MARC::Moose::Formater';
 
-use Marc::Field::Control;
-use Marc::Field::Std;
+use MARC::Moose::Field::Control;
+use MARC::Moose::Field::Std;
 use YAML;
 
 

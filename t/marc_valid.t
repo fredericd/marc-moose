@@ -5,24 +5,24 @@ use warnings;
 
 use Test::More tests => 26;
 
-use Marc::Record;
-use Marc::Field;
-use Marc::Field::Control;
-use Marc::Field::Std;
+use MARC::Moose::Record;
+use MARC::Moose::Field;
+use MARC::Moose::Field::Control;
+use MARC::Moose::Field::Std;
 use YAML;
 
 
-my $record = Marc::Record->new();
-ok( length($record->leader) == 24, 'new Marc::Record has 24 length leader');
-ok( @{$record->fields} == 0, 'new Marc::Record has 0 fields' );
+my $record = MARC::Moose::Record->new();
+ok( length($record->leader) == 24, 'new MARC::Moose::Record has 24 length leader');
+ok( @{$record->fields} == 0, 'new MARC::Moose::Record has 0 fields' );
 
 ok( $record->set_leader_length(100, 10), 'fix record leader length' );
 
-my $field_100 = Marc::Field::Std->new(
+my $field_100 = MARC::Moose::Field::Std->new(
     tag  => '100',
     subf => [ [ a => 'Demians, Frédéric' ], [ e => 'Editor' ] ]
 );
-ok( $field_100, 'new Marc::Field' );
+ok( $field_100, 'new MARC::Moose::Field' );
 ok( $field_100->tag eq '100', "right tag" );
 is( @{$field_100->subf}, 2, "right number of subfields" );
 ok( $field_100->subf->[0][0] eq 'a', "right first letter" );
@@ -39,7 +39,7 @@ ok(
      && $field_100->subfield('e') eq $back->subfield('e'),
     'return field is the same' );
 
-my $field_245 = Marc::Field::Std->new(
+my $field_245 = MARC::Moose::Field::Std->new(
     tag  => '245',
     subf => [ [ a => 'Best live: '], [ b => 'In wonderfull land' ] ]
 );
@@ -55,7 +55,7 @@ my @fields;
 ok( @fields = $record->field('...'), "get all fields" );
 ok( $fields[0] == $field_100 && $fields[1] == $field_245, "get the right fields in valid order" );
 
-my $field_110 = Marc::Field::Std->new(
+my $field_110 = MARC::Moose::Field::Std->new(
     tag  => '110', 
     subf => [ [ a => 'Tamil s.a.r.l.' ] ]
 );

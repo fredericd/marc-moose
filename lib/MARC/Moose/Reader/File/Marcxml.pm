@@ -1,20 +1,20 @@
-package Marc::Reader::File::Marcxml;
-# ABSTRACT: File reader for Marc record from MARCXML file
+package MARC::Moose::Reader::File::Marcxml;
+# ABSTRACT: File reader for MARCXML file
 
 use namespace::autoclean;
 use Moose;
 
 use Carp;
-use Marc::Record;
-use Marc::Parser::Marcxml;
+use MARC::Moose::Record;
+use MARC::Moose::Parser::Marcxml;
 
-extends 'Marc::Reader::File';
+extends 'MARC::Moose::Reader::File';
 
 
 has parser => ( 
     is => 'rw', 
-    isa => 'Marc::Parser',
-    default => sub { Marc::Parser::Marcxml->new() },
+    isa => 'MARC::Moose::Parser',
+    default => sub { MARC::Moose::Parser::Marcxml->new() },
 );
 
 

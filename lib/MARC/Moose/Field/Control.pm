@@ -1,10 +1,10 @@
-package Marc::Field::Control;
+package MARC::Moose::Field::Control;
 # ABSTRACT: Control Marc field (tag < 010)
 
 use namespace::autoclean;
 use Moose;
 
-extends 'Marc::Field';
+extends 'MARC::Moose::Field';
 
 has value => ( is => 'rw', isa => 'Str' );
 

@@ -1,5 +1,5 @@
-package Marc::Reader;
-# ABSTRACT: A reader returning Marc records
+package MARC::Moose::Reader;
+# ABSTRACT: A reader returning MARC::Moose records
 
 use namespace::autoclean;
 use Moose;

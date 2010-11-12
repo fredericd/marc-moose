@@ -1,13 +1,13 @@
-package Marc::Parser::Iso2709;
-# ABSTRACT: Parser for ISO2709 Marc records
+package MARC::Moose::Parser::Iso2709;
+# ABSTRACT: Parser for ISO2709 records
 
 use namespace::autoclean;
 use Moose;
 
-extends 'Marc::Parser';
+extends 'MARC::Moose::Parser';
 
-use Marc::Field::Control;
-use Marc::Field::Std;
+use MARC::Moose::Field::Control;
+use MARC::Moose::Field::Std;
 
 
 # FIXME Experimental. Not used yet.
@@ -26,7 +26,7 @@ override 'parse' => sub {
 
     return unless $raw;
 
-    my $record = Marc::Record->new();
+    my $record = MARC::Moose::Record->new();
 
     my $leader = substr($raw, 0, 24);
     #print "leader: $leader\n";
@@ -55,11 +55,11 @@ override 'parse' => sub {
                 next if length($_) <= 2;                                 
                 push @sf, [ substr($_, 0, 1), substr($_, 1) ];
             }
-            push @fields, Marc::Field::Std->new(
+            push @fields, MARC::Moose::Field::Std->new(
                 tag => $tag, ind1 => $i1, ind2 => $i2, subf => \@sf );
         }
         else {
-            push @fields, Marc::Field::Control->new( tag => $tag, value => $value );
+            push @fields, MARC::Moose::Field::Control->new( tag => $tag, value => $value );
         }
     }
     $record->fields( \@fields );
@@ -72,5 +72,5 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 SEE ALSO
 =for :list
-* L<Marc>
-* L<Marc::Parser>
+* L<MARC::Moose>
+* L<MARC::Moose::Parser>

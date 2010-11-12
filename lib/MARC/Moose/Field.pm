@@ -1,4 +1,4 @@
-package Marc::Field;
+package MARC::Moose::Field;
 # ABSTRACT: Marc field base object
 
 use namespace::autoclean;
@@ -27,6 +27,6 @@ __PACKAGE__->meta->make_immutable;
 
 =for :list
 
-* L<Marc::Field::Control>
-* L<Marc::Field::Std>
+* L<MARC::Moose::Field::Control>
+* L<MARC::Moose::Field::Std>
 

@@ -1,13 +1,13 @@
-package Marc::Formater::Text;
-# ABSTRACT: Marc record formater into a text representation
+package MARC::Moose::Formater::Text;
+# ABSTRACT: Record formater into a text representation
 
 use namespace::autoclean;
 use Moose;
 
-extends 'Marc::Formater';
+extends 'MARC::Moose::Formater';
 
-use Marc::Field::Control;
-use Marc::Field::Std;
+use MARC::Moose::Field::Control;
+use MARC::Moose::Field::Std;
 
 
 override 'format' => sub {
@@ -17,7 +17,7 @@ override 'format' => sub {
          $record->leader,
          map {
              $_->tag .
-             ( ref($_) eq 'Marc::Field::Control' 
+             ( ref($_) eq 'MARC::Moose::Field::Control' 
                ? $_->value
                : ' ' . $_->ind1 . $_->ind2 . ' '  .
                join ' ', map { ('$' . $_->[0], $_->[1] ) } @{$_->subf}
