@@ -109,18 +109,42 @@ __PACKAGE__->meta->make_immutable;
 =head1 SYNOPSYS
 
  use MARC::Moose::Record;
- use MARC::Moose::Reader::File;
- use MARC::Moose::Parser::Iso2709;
+ use MARC::Moose::Field::Control;
+ use MARC::Moose::Field::Std;
  use MARC::Moose::Formater::Text;
-
- my $reader = MARC::Moose::Reader::File->new(
-     file   => 'biblio.iso',
-     parser => MARC::Moose::Parser::Iso2709->new()
+ 
+ my $record = MARC::Moose::Record->new(
+     fields => [
+         MARC::Moose::Field::Control->new(
+             tag => '001',
+             value => '1234' ),
+         MARC::Moose::Field::Std->new(
+             tag => '245',
+             subf => [ [ a => 'MARC is dying for ever:' ], [ b => 'will it ever happen?' ] ] ),
+         MARC::Moose::Field::Std->new(
+             tag => '260',
+             subf => [
+                 [ a => 'Paris:' ],
+                 [ b => 'Usefull Press,' ],
+                 [ c => '2010.' ],
+             ] ),
+         MARC::Moose::Field::Std->new(
+             tag => '600',
+             subf => [ [ a => 'Library' ], [ b => 'Standards' ] ] ),
+         MARC::Moose::Field::Std->new(
+             tag => '900',
+             subf => [ [ a => 'My local field 1' ] ] ),
+         MARC::Moose::Field::Std->new(
+             tag => '901',
+             subf => [ [ a => 'My local field 1' ] ] ),
+     ]
  );
+   
  my $formater = MARC::Moose::Formater::Text->new();
- while ( my $record = $reader->read() ) {
-     print $formater->format( $record );
- }
+ print $formater->format( $record );
+ 
+ $record->fields( [ grep { $_->tag < 900 } @{$record->fields} ] );
+ print "After local fields removing:\n", $formater->format($record);
 
 =head1 DESCRIPTION
 

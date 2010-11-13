@@ -67,10 +67,14 @@ EOS
 
 
 # Number of time the above record is parsed
-my $max = 5000;
+my $max = 1000;
 
 # Tested SAX parsers
-my @xml_parsers = qw/ XML::LibXML::SAX XML::SAX::Expat XML::SAX::ExpatXS /;
+my @xml_parsers = qw(
+    XML::LibXML::SAX::Parser
+    XML::SAX::Expat
+    XML::SAX::ExpatXS
+);
 
 
 sub parse_with_marc_moose {
