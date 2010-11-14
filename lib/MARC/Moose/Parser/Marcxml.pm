@@ -16,32 +16,30 @@ override 'parse' => sub {
     return unless $raw;
     return undef unless $raw =~ /<record/;
 
-    $raw =~ s/\n//g;
-    $raw =~ s/>\s*</></g;
     my @parts = split />/, $raw;
     my ($tag, $code, $ind1, $ind2);
     my $record = MARC::Moose::Record->new();
     my @fields;
     while ( @parts ) {
         $_ = shift @parts;
-        $_ = shift @parts if /^<record/;
-        if ( /^<leader/ ) {
+        $_ = shift @parts if /<record/;
+        if ( /<leader/ ) {
             $_ = shift @parts;
-            s/<\/leader//;
-            $record->_leader($_);
+            /(.*)<\/leader/;
+            $record->_leader($1);
             next;
         }
-        if ( /^<controlfield/ ) {
-            my ($tag) = /tag="(.*)"/;
+        if ( /<controlfield\s*tag="(.*)"/ ) {
+            my $tag = $1;
             $_ = shift @parts;
             s/<\/controlfield//;
             push @fields, MARC::Moose::Field::Control->new( tag => $tag, value => $_ );
             next;
         }
-        if ( /^<datafield/ ) {
-            my ($tag, $ind1, $ind2) = /tag="(.*?)"\s*ind1="(.*?)"\s*ind2="(.*)"/;
+        if ( /<datafield\s*tag="(.*?)"\s*ind1="(.*?)"\s*ind2="(.*)"/ ) {
+            my ($tag, $ind1, $ind2) = ($1, $2, $3);
             my @subf;
-            while ( @parts && $parts[0] =~ /^<subfield.*code="(.*)"/ ) {
+            while ( @parts && $parts[0] =~ /<subfield.*code="(.*)"/ ) {
                 my $letter = $1;
                 shift @parts;
                 $_ = shift @parts;
