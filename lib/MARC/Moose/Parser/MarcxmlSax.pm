@@ -8,9 +8,22 @@ extends 'MARC::Moose::Parser';
 
 use MARC::Moose::Field::Control;
 use MARC::Moose::Field::Std;
-use XML::Simple;
+use MARC::Moose::Parser::MarcxmlSaxHandler;
+use XML::SAX qw(Namespaces Validation);;
+use YAML;
 
-has 'xs' => ( is => 'rw', default => sub {  XML::Simple->new() } );
+
+has parser => (
+    is => 'rw',
+    default => sub {
+        my $self = shift;
+        my $factory = XML::SAX::ParserFactory->new();
+        my $parser = $factory->parser(
+            Handler => MARC::Moose::Parser::MarcxmlSaxHandler->new(),
+        );
+        $self->parser( $parser );
+    },
+);
 
 
 override 'parse' => sub {
@@ -18,25 +31,8 @@ override 'parse' => sub {
 
     return unless $raw;
 
-    my $ref = eval { $self->xs->XMLin($raw, forcearray => [ 'subfield' ] ) };
-    return undef if $@;
-
-    my $record = MARC::Moose::Record->new();
-    $record->_leader( $ref->{leader} );
-    my @fields_control = map {
-        MARC::Moose::Field::Control->new( tag => $_->{tag}, value => $_->{content} );
-    } @{$ref->{controlfield}};
-    my @fields_std = map {
-        my @sf = map { [ $_->{code}, $_->{content} ] }  @{$_->{subfield}};
-        MARC::Moose::Field::Std->new(
-            tag  => $_->{tag},
-            ind1 => $_->{ind1},
-            ind2 => $_->{ind2},
-            subf => \@sf,
-        ); 
-    } @{$ref->{datafield}};
-    $record->fields( [ @fields_control, @fields_std ] );
-
+    $self->parser->parse_string( $raw );
+    my $record = $self->parser->{Handler}->{record};
     return $record;
 };
 
