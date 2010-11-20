@@ -18,7 +18,7 @@ override 'format' => sub {
          map {
              $_->tag .
              ( ref($_) eq 'MARC::Moose::Field::Control' 
-               ? $_->value
+               ? ' ' . $_->value
                : ' ' . $_->ind1 . $_->ind2 . ' '  .
                join ' ', map { ('$' . $_->[0], $_->[1] ) } @{$_->subf}
              );
