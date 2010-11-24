@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 16;
+use Test::More tests => 25;
 
 use MARC::Moose::Record;
 use MARC::Moose::Field;
@@ -11,7 +11,11 @@ use MARC::Moose::Field::Control;
 use MARC::Moose::Field::Std;
 use MARC::Moose::Parser::Marcxml;
 use MARC::Moose::Reader::File::Marcxml;
+use MARC::Moose::Reader::File::Iso2709;
+use MARC::Moose::Reader::String::Iso2709;
+use MARC::Moose::Parser::Iso2709;
 use YAML;
+
 
 my $xml_chunk = <<EOS;
 <record>
@@ -126,3 +130,16 @@ ok( $record = $reader->read(), "Read second record" );
 ok( $record = $reader->read(), "Read third record" );
 ok( $record = $reader->read(), "Read fourth record" );
 ok( !defined($record = $reader->read()), "End of file" );
+
+ok ( $parser = MARC::Moose::Parser::Iso2709->new(), "MARC::Moose::Parser::Iso2709 instantiated" );
+ok ( $reader = MARC::Moose::Reader::File::Iso2709->new( file => 't/biblios.iso2709' ), "Reader on a file" );
+ok ( $record = $reader->read(), "Read first record" );
+ok ( $record = $reader->read(), "Read second record" );
+ok ( !defined($record = $reader->read()), "End of file" );
+
+open my $fh, "<", "t/biblios.iso2709";
+my $content = <$fh>;
+ok ( $reader = MARC::Moose::Reader::String::Iso2709->new( string => $content ), "Reader on a string" );
+ok ( $record = $reader->read(), "Read first record from string" );
+ok ( $record = $reader->read(), "Read second record from string" );
+ok ( !defined($record = $reader->read()), "End of string" );
