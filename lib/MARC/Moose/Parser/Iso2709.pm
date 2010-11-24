@@ -52,7 +52,7 @@ override 'parse' => sub {
             $value = substr($value, 2);
             my @sf;
             for ( split /\x1F/, $value) {
-                next if length($_) <= 2;                                 
+                next if length($_) < 2;
                 push @sf, [ substr($_, 0, 1), substr($_, 1) ];
             }
             push @fields, MARC::Moose::Field::Std->new(
