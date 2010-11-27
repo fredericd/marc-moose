@@ -24,6 +24,17 @@ __PACKAGE__->meta->make_immutable;
  );
  my $formater = MARC::Moose::Formater::Text->new();
  while ( my $record = $reader->read() ) {
+     # Remove some fields
+     $record->fields([
+         grep { not $_->tag ~~ [qw(001 009 039 917 930 955)] } @{$record->fields}
+     ]);
+     # Clean some subfields
+     for my $field ( @{$record->fields} ) {
+        next unless $field->tag ~~ [qw(410 461 600 606 607 608)];
+        $field->subf([
+          grep { not $_->[0] =~ /0|2|3|9/ } @{$field->subf}
+        ]);
+     }
      print $formater->format( $record );
  }
 
