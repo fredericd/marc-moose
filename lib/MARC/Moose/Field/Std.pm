@@ -42,7 +42,7 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
- =method field( I<letter> )
+=method field( I<letter> )
 
 In scalar context, returns the first I<letter> subfield content. In list
 context, returns all I<letter> subfields content.

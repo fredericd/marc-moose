@@ -68,7 +68,6 @@ sub field {
     my @specs = @_;  
 
     my @list;
-    use YAML;
     for my $tag ( @specs ) {
         my $regex = $_field_regex{ $tag };
         # Compile & stash it if necessary
@@ -83,7 +82,9 @@ sub field {
             }
         }
     }
-    return @list;
+    wantarray
+        ? @list
+        : @list ? $list[0] : undef;
 }
 
 
