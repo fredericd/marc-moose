@@ -8,7 +8,7 @@ extends 'MARC::Moose::Formater';
 
 use MARC::Moose::Field::Control;
 use MARC::Moose::Field::Std;
-use YAML;
+use YAML::Syck;
 
 
 
