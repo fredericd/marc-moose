@@ -3,7 +3,6 @@ package MARC::Moose::Parser::MarcxmlSaxHandler;
 
 use strict;
 use warnings;
-use feature ":5.10";
 
 use XML::SAX;
 use base qw( XML::SAX::Base );
@@ -17,57 +16,55 @@ sub new {
     return bless {}, ref($class) || $class;
 }
 
-
 sub start_element {
     my ($self, $element) = @_;
+    my $name = $element->{Name};
     $self->{data} = '';
-    given ( $element->{LocalName} ) {
-        when ( 'record' ) {
-            $self->{record} = MARC::Moose::Record->new();
-            $self->{fields} = [];
-        }
-        when ( 'controlfield' ) {
-            $self->{field} = MARC::Moose::Field::Control->new(
-                tag => $element->{Attributes}{'{}tag'}{Value} );
-        }
-        when ( 'datafield' ) {
-            my $attr = $element->{Attributes};
-            $self->{field} = MARC::Moose::Field::Std->new(
-                tag  => $attr->{'{}tag'}{Value},
-                ind1 => $attr->{'{}ind1'}{Value},
-                ind2 => $attr->{'{}ind2'}{Value},
-            );
-        }
-        when ( 'subfield' ) {
-            $self->{code} = $element->{Attributes}{'{}code'}{Value}
-        }
+    if ( $name eq 'record' ) {
+        $self->{record} = MARC::Moose::Record->new();
+        $self->{fields} = [];
+    }
+    elsif ( $name eq 'controlfield' ) {
+        $self->{field} = MARC::Moose::Field::Control->new(
+            tag => $element->{Attributes}{'{}tag'}{Value} );
+    }
+    elsif ( $name eq 'datafield' ) {
+        my $attr = $element->{Attributes};
+        $self->{field} = MARC::Moose::Field::Std->new(
+            tag  => $attr->{'{}tag'}{Value},
+            ind1 => $attr->{'{}ind1'}{Value},
+            ind2 => $attr->{'{}ind2'}{Value},
+        );
+    }
+    elsif ( $name eq 'subfield' ) {
+        $self->{code} = $element->{Attributes}{'{}code'}{Value}
     }
 }
 
 
 sub end_element {
     my ($self, $element) = @_;
-    given ( $element->{Name} ) {
-        when ( 'leader' ) {
-            my $record = $self->{record};
-            $record->_leader( $self->{data} );
-        }
-        when ( 'controlfield' ) {
-            my $field = $self->{field};
-            $field->value( $self->{data} );
-            push @{$self->{fields}}, $field;
-        }
-        when ( 'datafield' ) {
-            push @{$self->{fields}}, $self->{field};
-        }
-        when ( 'subfield' ) {
-            my $field = $self->{field};
-            push @{$field->{subf}}, [ $self->{code}, $self->{data} ];
-        }
-        when ( 'record' ) {
-            my $record = $self->{record};
-            $record->fields( $self->{fields} );
-        }
+    my $name = $element->{Name};
+
+    if ( $name eq 'leader' ) {
+        my $record = $self->{record};
+        $record->_leader( $self->{data} );
+    }
+    elsif ( $name eq 'controlfield' ) {
+        my $field = $self->{field};
+        $field->value( $self->{data} );
+        push @{$self->{fields}}, $field;
+    }
+    elsif ( $name eq 'datafield' ) {
+        push @{$self->{fields}}, $self->{field};
+    }
+    elsif ( $name eq 'subfield' ) {
+        my $field = $self->{field};
+        push @{$field->{subf}}, [ $self->{code}, $self->{data} ];
+    }
+    elsif ( $name eq 'record' ) {
+        my $record = $self->{record};
+        $record->fields( $self->{fields} );
     }
 }
 
