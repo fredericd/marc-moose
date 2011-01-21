@@ -20,13 +20,13 @@ has formater => (
 
 sub begin {
     my $self = shift;
-    $self->parser->begin();
+    print $self->formater->begin();
 }
 
 
 sub end {
     my $self = shift;
-    $self->parser->end();
+    print $self->formater->end();
 }
 
 

@@ -27,18 +27,19 @@ has fh => ( is => 'rw' );
 
 has binmode => ( is => 'rw', isa => 'Str', default => '' );
 
-sub BUILD {
+
+override 'begin' => sub {
     my $self = shift;
     my $fh = $self->fh;
     print $fh $self->formater->begin();
-}
+};
 
 
-sub DEMOLISH {
+override 'end' => sub {
     my $self = shift;
     my $fh = $self->fh;
     print $fh $self->formater->end();
-}
+};
 
 
 override 'write' => sub {
