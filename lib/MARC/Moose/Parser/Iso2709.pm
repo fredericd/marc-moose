@@ -22,8 +22,6 @@ use MARC::Moose::Field::Std;
 override 'parse' => sub {
     my ($self, $raw) = @_;
 
-    #print "\nRAW: $raw\n";
-
     return unless $raw;
 
     my $record = MARC::Moose::Record->new();
