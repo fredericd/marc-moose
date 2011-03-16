@@ -47,7 +47,7 @@ override 'parse' => sub {
             # We can have indicators inconsistencies, even no indicator at all,
             # even for a tag >= 010...
             if ( $i1 eq '^' ) {
-                $i1 = $i1 = ' ';
+                $i1 = $i2 = ' ';
             }
             elsif ( $i2 eq '^' ) {
                 $i2 = ' ';
@@ -58,7 +58,7 @@ override 'parse' => sub {
             }
             my @sf;
             for ( split /\^/, $value) {
-                next if length($_) <= 2;
+                next if length($_) < 2;
                 push @sf, [ substr($_, 0, 1), substr($_, 1) ];
             }
             $record->append( MARC::Moose::Field::Std->new(
