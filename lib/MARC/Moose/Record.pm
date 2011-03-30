@@ -5,6 +5,15 @@ use namespace::autoclean;
 use Moose;
 
 use Carp;
+use MARC::Moose::Formater::Iso2709;
+use MARC::Moose::Formater::Json;
+use MARC::Moose::Formater::Legacy;
+use MARC::Moose::Formater::Marcxml;
+use MARC::Moose::Formater::Text;
+use MARC::Moose::Formater::Yaml;
+use MARC::Moose::Parser::Iso2709;
+use MARC::Moose::Parser::MarcxmlSax;
+use MARC::Moose::Parser::Legacy;
 
 
 has leader => (
@@ -19,6 +28,26 @@ has fields => (
     isa => 'ArrayRef', 
     default => sub { [] } 
 );
+
+
+# Global
+
+# Les formater standards
+my $formater = {
+    iso2709 => MARC::Moose::Formater::Iso2709->new(),
+    json    => MARC::Moose::Formater::Json->new(),
+    legacy  => MARC::Moose::Formater::Legacy->new(),
+    marcxml => MARC::Moose::Formater::Marcxml->new(),
+    text    => MARC::Moose::Formater::Text->new(),
+    yaml    => MARC::Moose::Formater::Yaml->new(),
+};
+
+# Les parser standards
+my $parser = {
+    iso2709 => MARC::Moose::Parser::Iso2709->new(),
+    marcxml => MARC::Moose::Parser::MarcxmlSax->new(),
+    legacy  => MARC::Moose::Parser::Legacy->new(),
+};
 
 
 sub set_leader_length {
@@ -85,6 +114,20 @@ sub field {
     wantarray
         ? @list
         : @list ? $list[0] : undef;
+}
+
+
+sub as {
+    my ($self, $format) = @_;
+    my $f = $formater->{ lc($format) };
+    return $f ? $f->format($self) : undef;
+}
+
+
+sub new_from {
+    my ($record, $type) = @_;
+    my $p = $parser->{ lc($type) };
+    $p ? $p->parse($record) : undef;
 }
 
 
@@ -184,6 +227,12 @@ if nothing matched.
 The field specifier can be a simple number (i.e. "245"), or use the "."
 notation of wildcarding (i.e. subject tags are "6.."). All fields are returned
 if "..." is specified.
+
+=method as( I<format> )
+
+Returns a formated version of the record as defined by I<format>. Format are standard
+formater provided by the MARC::Moose::Record package: Iso2709, Text, Marcxml,
+Json, Yaml, Legacy.
 
 =method set_leader_length( I<length>, I<offset> )
 
