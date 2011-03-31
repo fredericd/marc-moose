@@ -76,10 +76,10 @@ sub append {
     carp  "Append a non MARC::Moose::Field"
         unless ref($field_to_add) =~ /^MARC::Moose::Field/; 
 
-    my $tag_first = substr($field_to_add->tag, 0, 1);
+    my $tag = $field_to_add->tag;
     my @sf;
     for my $field ( @{$self->fields} ) {
-        if ( $field_to_add and substr($field->tag, 0, 1) gt $tag_first ) {
+        if ( $field_to_add and $field->tag gt $tag ) {
             push @sf, $field_to_add;
             $field_to_add = undef;
         }
