@@ -23,7 +23,7 @@ override 'format' => sub {
                join ' ', map { ('$' . $_->[0], $_->[1] ) } @{$_->subf}
              );
          } @{ $record->fields };
-    return $text . "\n\n"; 
+    return $text . "\n"; 
 };
 
 __PACKAGE__->meta->make_immutable;
