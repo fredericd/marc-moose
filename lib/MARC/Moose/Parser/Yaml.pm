@@ -8,6 +8,7 @@ extends 'MARC::Moose::Parser';
 
 use YAML::Syck;
 
+$YAML::Syck::ImplicitUnicode = 1;
 
 # FIXME Experimental. Not used yet.
 #has converter => (

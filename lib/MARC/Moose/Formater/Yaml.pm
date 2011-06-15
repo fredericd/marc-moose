@@ -8,8 +8,9 @@ extends 'MARC::Moose::Formater';
 
 use MARC::Moose::Field::Control;
 use MARC::Moose::Field::Std;
-use YAML;
+use YAML::Syck;
 
+$YAML::Syck::ImplicitUnicode = 1;
 
 
 override 'format' => sub {

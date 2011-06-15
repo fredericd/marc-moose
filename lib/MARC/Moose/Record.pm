@@ -14,6 +14,7 @@ use MARC::Moose::Formater::Yaml;
 use MARC::Moose::Parser::Iso2709;
 use MARC::Moose::Parser::MarcxmlSax;
 use MARC::Moose::Parser::Legacy;
+use MARC::Moose::Parser::Yaml;
 
 
 has leader => (
@@ -47,6 +48,7 @@ my $parser = {
     iso2709 => MARC::Moose::Parser::Iso2709->new(),
     marcxml => MARC::Moose::Parser::MarcxmlSax->new(),
     legacy  => MARC::Moose::Parser::Legacy->new(),
+    yaml    => MARC::Moose::Parser::Yaml->new(),
 };
 
 
