@@ -72,22 +72,30 @@ sub set_leader_length {
 
 
 sub append {
-    my ($self, $field_to_add) = @_;
+    my $self = shift;
 
+    my @fields = @_;
+    return unless @fields;
+        
     # Control field correctness
-    carp  "Append a non MARC::Moose::Field"
-        unless ref($field_to_add) =~ /^MARC::Moose::Field/; 
+    for my $field (@fields) {
+        unless ( ref($field) =~ /^MARC::Moose::Field/ ) {
+            carp  "Append a non MARC::Moose::Field";
+            return;
+        }
+    }
 
-    my $tag = $field_to_add->tag;
+    my $tag = $fields[0]->tag;
     my @sf;
+    my $notdone = 1; 
     for my $field ( @{$self->fields} ) {
-        if ( $field_to_add and $field->tag gt $tag ) {
-            push @sf, $field_to_add;
-            $field_to_add = undef;
+        if ( $notdone && $field->tag gt $tag ) {
+            push @sf, @fields;
+            $notdone = 0;
         }
         push @sf, $field;
     }
-    push @sf, $field_to_add if $field_to_add;
+    push @sf, @fields if $notdone;
     $self->fields( \@sf );
 }
 
@@ -219,6 +227,11 @@ fields list.
     subf => [ [ a => 'Poe, Edgar Allan' ],
               [ u => 'Translation' ] ]
  ) );
+
+You can also append an array of MARC::Moose::Field. In this case, the array
+will be appended as for a unique field at the position of the first field of
+the array.
+
 
 =method field( I<tag> )
 
