@@ -33,6 +33,9 @@ override 'read' => sub {
     # Skip <collection if present
     $raw =~ s/<(\/*)collection.*>//;
 
+    # End of file
+    return unless $record =~ /<record>/;
+
     return $self->parser->parse( $raw );
 };
 

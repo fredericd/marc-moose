@@ -32,8 +32,8 @@ sub start_element {
         my $attr = $element->{Attributes};
         $self->{field} = MARC::Moose::Field::Std->new(
             tag  => $attr->{'{}tag'}{Value},
-            ind1 => $attr->{'{}ind1'}{Value},
-            ind2 => $attr->{'{}ind2'}{Value},
+            ind1 => $attr->{'{}ind1'}{Value} || '',
+            ind2 => $attr->{'{}ind2'}{Value} || '',
         );
     }
     elsif ( $name eq 'subfield' ) {
