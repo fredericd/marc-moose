@@ -34,7 +34,7 @@ override 'read' => sub {
     $raw =~ s/<(\/*)collection.*>//;
 
     # End of file
-    return unless $record =~ /<record>/;
+    return unless $raw =~ /<record>/;
 
     return $self->parser->parse( $raw );
 };
