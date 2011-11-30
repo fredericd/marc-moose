@@ -196,6 +196,8 @@ __PACKAGE__->meta->make_immutable;
    
  my $formater = MARC::Moose::Formater::Text->new();
  print $formater->format( $record );
+ # Shortcut:
+ print $record->as('Text');
  
  $record->fields( [ grep { $_->tag < 900 } @{$record->fields} ] );
  print "After local fields removing:\n", $formater->format($record);
