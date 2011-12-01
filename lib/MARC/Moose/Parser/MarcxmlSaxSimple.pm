@@ -19,7 +19,7 @@ override 'parse' => sub {
     return unless $raw;
 
     my $ref = eval { $self->xs->XMLin($raw, forcearray => [ 'subfield' ] ) };
-    return undef if $@;
+    return if $@;
 
     my $record = MARC::Moose::Record->new();
     $record->_leader( $ref->{leader} );

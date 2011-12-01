@@ -13,7 +13,7 @@ use MARC::Moose::Field::Std;
 override 'parse' => sub {
     my ($self, $raw) = @_;
 
-    return undef unless $raw =~ /<record/;
+    return unless $raw =~ /<record/;
 
     my @parts = split />/, $raw;
     my ($tag, $code, $ind1, $ind2);
