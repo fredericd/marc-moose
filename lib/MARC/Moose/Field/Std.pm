@@ -28,13 +28,14 @@ override 'as_formatted' => sub {
 sub subfield {
     my ($self, $letter) = @_;
 
-    return undef unless $letter;
+    return unless defined($letter);
 
     my @values;
     for ( @{$self->subf} ) {
         push @values, $_->[1] if $_->[0] eq $letter;
     }
 
+    return unless @values;
     return wantarray ? @values : $values[0];
 }
 
