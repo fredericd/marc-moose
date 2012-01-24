@@ -40,6 +40,11 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
+
+=head1 DESCRIPTION
+
+Parser for MARCXML records using SAX parser.
+
 =head1 SEE ALSO
 
 =for :list

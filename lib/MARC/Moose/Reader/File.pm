@@ -9,6 +9,13 @@ use MARC::Moose::Record;
 
 extends 'MARC::Moose::Reader';
 
+=attr file
+
+Name of the file to read MARC::Moose::Record from. A error is thrown if the file
+does't exist.
+
+=cut
+
 has file => (
     is => 'rw',
     isa => 'Str',
@@ -35,18 +42,12 @@ sub BUILD {
 
 sub read {
     my $self = shift;
-
     $self->SUPER::read();
 }
 
 __PACKAGE__->meta->make_immutable;
 
 1;
-
-=attr file
-
-Name of the file to read MARC::Moose::Record from. A error is thrown if the file
-does't exist.
 
 =head1 SEE ALSO
 

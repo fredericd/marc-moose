@@ -11,11 +11,7 @@ use MARC::Moose::Parser::Iso2709;
 extends 'MARC::Moose::Reader::File';
 
 
-has parser => ( 
-    is => 'rw', 
-    isa => 'MARC::Moose::Parser',
-    default => sub { MARC::Moose::Parser::Iso2709->new() },
-);
+has '+parser' => ( default => sub { MARC::Moose::Parser::Iso2709->new() } );
 
 
 override 'read' => sub {
@@ -35,6 +31,7 @@ override 'read' => sub {
 
     return $self->parser->parse( $raw );
 };
+
 
 __PACKAGE__->meta->make_immutable;
 

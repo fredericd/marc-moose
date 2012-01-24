@@ -11,11 +11,13 @@ use MARC::Moose::Parser::Marcxml;
 extends 'MARC::Moose::Reader::File';
 
 
-has parser => ( 
-    is => 'rw', 
-    isa => 'MARC::Moose::Parser',
-    default => sub { MARC::Moose::Parser::Marcxml->new() },
-);
+=attr parser
+
+By default, a L<MARC::Moose::Parser::MarcxmlSax> parser is used.
+
+=cut
+
+has '+parser' => ( default => sub { MARC::Moose::Parser::MarcxmlSax->new() } );
 
 
 override 'read' => sub {
@@ -42,4 +44,12 @@ override 'read' => sub {
 __PACKAGE__->meta->make_immutable;
 
 1;
+
+
+=head1 DESCRIPTION
+
+Override L<MARC::Moose::Reader::File>, and read a file containing MARCXML
+records.
+
+=cut
 

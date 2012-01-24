@@ -66,7 +66,8 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 DESCRIPTION
 
-This MARCXML parser doesn't use a SAX parser. This results in better performances.
+This MARCXML parser doesn't use a SAX parser. It's pure Perl. This results in
+better performances.
 
 =head1 SEE ALSO
 

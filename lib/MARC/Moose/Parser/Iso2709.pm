@@ -71,7 +71,12 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
+=head1 DESCRIPTION
+
+Override L<MARC::Moose::Parser> to parse ISO2709 MARC records.
+
 =head1 SEE ALSO
+
 =for :list
 * L<MARC::Moose>
 * L<MARC::Moose::Parser>

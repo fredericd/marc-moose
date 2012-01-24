@@ -9,6 +9,14 @@ use MARC::Moose::Record;
 
 extends 'MARC::Moose::Writer';
 
+=attr file
+
+Name of the file into which writing L<MARC::Moose::Record> records using
+I<write> method.  Before writing into the file, record is formatted using a
+formater.
+
+=cut
+
 has file => (
     is => 'rw',
     isa => 'Str',
@@ -24,6 +32,17 @@ has file => (
 );
 
 has fh => ( is => 'rw' );
+
+=attr binmode
+
+Binmode of the result file. Example:
+
+ my $writer = MARC::Moose::Writer::File->new(
+   binmode  => 'utf8',
+   file     => 'output.iso2709',
+   formater => MARC::Moose::Formater::Iso2709->new() );
+
+=cut
 
 has binmode => ( is => 'rw', isa => 'Str', default => '' );
 
@@ -55,24 +74,7 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
+=head1 DESCRIPTION
 
-=attr file
+Override L<MARC::Moose::Writer>. Write record into a file.
 
-Name of the file into which writing L<MARC::Moose::Record> records using
-I<write> method.  Before writing into the file, record is formatted using a
-formater.
-
-=attr binmode
-
-Binmode of the result file. Example:
-
- my $writer = MARC::Moose::Writer->new(
-   binmode  => 'utf8',
-   file     => 'output.iso2709',
-   formater => MARC::Moose::Formater::Iso2709->new() );
-
-=head1 SEE ALSO
-
-=for :list
-* L<MARC::Moose>
-* L<MARC::Moose::Writer>
