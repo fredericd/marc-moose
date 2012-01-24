@@ -7,12 +7,26 @@ use Moose;
 extends 'MARC::Moose::Field';
 
 use overload
-    '%{}' => \&subfield;
+    '%{}' => \&subfield,
+    '${}' => \&subfield;
 
 
 has ind1 => (is => 'rw', isa => 'Str', default => ' ');
 has ind2 => (is => 'rw', isa => 'Str', default => ' ');
 
+
+=attr subf
+
+An ArrayRef of field subfields. Each subfield is this array is an 2D ArrayRef.
+For example:
+
+  $field->subf( [ [ 'a', 'Part1' ], [ 'b', 'Part2' ] ] );
+
+or
+
+  $field->subf( [ [ a => 'Part1' ], [ b => 'Part2' ] ] );
+
+=cut
 has subf => ( is => 'rw', isa => 'ArrayRef', default => sub { [] } );
 
 
@@ -21,6 +35,7 @@ override 'as_formatted' => sub {
 
     join ' ', (
         $self->tag,
+        $self->ind1 . $self->ind2,
         map { ("\$$_->[0]", $_->[1]) } @{$self->subf} );
 };
 
