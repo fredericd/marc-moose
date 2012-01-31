@@ -158,6 +158,7 @@ push @unchanged, [$_, 500]  for 300..315;
 push @unchanged, [320, 504],
                  [321, 500],
                  [322, 508],
+                 [323, 511],
                  [324, 500],
                  [328, 502],
                  [330, 520],
@@ -740,31 +741,119 @@ override 'format' => sub {
         }
     }
 
-    # 454 => 765
-    for my $field ( $unimarc->field('454') ) {
-        my @titles;
-        for ( @{$field->subf} ) {
-            my ($letter, $value) = @$_;
-            next if $letter =~ /6|7/;
-            push @titles, $value;
-        }
-        for my $title (@titles) {
-            $record->append( MARC::Moose::Field::Std->new(
-                tag => '765', subf => [ [ t => $title ] ] ) );
-        }
+    # 325 => 533
+    for my $field ( $unimarc->field('325') ) {
+        $record->append( MARC::Moose::Field::Std->new(
+            tag => '533',
+            subf => [ [ n => $field->subfield('a') ] ] ) );
     }
 
-    # 455 => 787
-    for my $field ( $unimarc->field('454') ) {
-        my @titles;
-        for ( @{$field->subf} ) {
-            my ($letter, $value) = @$_;
-            next if $letter =~ /6|7/;
-            push @titles, $value;
+    # 326 => 533
+    for my $field ( $unimarc->field('326') ) {
+        # FIXME Should be done depending on biblio record type:
+        # MAP, SERIALS
+        my $type = 'SERIALS'; 
+        my $new_field;
+        given ($type) {
+            when ( /SERIALS/ ) {
+                $new_field = $field->clone('310');
+            }
         }
-        for my $title (@titles) {
+        $record->append($new_field);
+    }
+
+    # 327 => 505
+    for my $field ( $unimarc->field('327') ) {
+        my $ind1 = $field->ind1;
+        $ind1 = 0 if $ind1 =~ /1/;
+        $ind1 = 1 if $ind1 =~ /0/;
+        my @a = map { $_->[1] } @{$field->subf};
+        $record->append( MARC::Moose::Field::Std->new(
+            tag => '505', ind1 => $ind1,
+            subf => [ [ a => join('  ', @a) ] ] ) );
+    }
+
+    # 336 => 500
+    for my $field ( $unimarc->field('336') ) {
+        $record->append( MARC::Moose::Field::Std->new(
+            tag => '500',
+            subf => [ [ a => 'Type of computer file: ' . $field->subfield('a') ] ] ) );
+    }
+
+    # 345 => 037
+    for my $field ( $unimarc->field('345') ) {
+        my @sf;
+        for ( @{$field->subf} ) {
+            my ($letter, $value) = @_;
+            $letter = $letter eq 'a' ? 'b' :
+                      $letter eq 'b' ? 'a' :
+                      $letter eq 'c' ? 'f' :
+                      $letter eq 'd' ? 'c' : $letter;
+            push @sf, [ $letter => $value ];
+        }
+        $record->append( MARC::Moose::Field::Std->new(
+            tag => '037', subf => \@sf ) );
+    }
+
+    # TODO 410 411 421 422 423 430 431 432 433 434 435 436 437 440 441 442 443
+    # 444 445 446 447 448 451 452 453
+
+    # 454 => 765
+    for my $ft ( (
+        [410, 760],
+        [411, 762],
+        [421, 770],
+        [422, 772],
+        [423, 777],
+        [430, 780, 0],
+        [431, 780, 1],
+        [432, 780, 2],
+        [433, 780, 3],
+        [434, 780, 5],
+        [435, 780, 6],
+        [436, 780, 4],
+        [437, 780, 7],
+        [440, 785, 0],
+        [441, 785, 1],
+        [442, 785, 2],
+        [443, 785, 3],
+        [444, 785, 4],
+        [445, 785, 5],
+        [446, 785, 6],
+        [447, 785, 7],
+        [448, 785, 8],
+        [451, 775],
+        [452, 776],
+        [453, 767],
+        [454, 765],
+        [455, 787, 8, 'Reproduction of:'],
+        [456, 787, 8, 'Reproduced as:'],
+        [461, 774],
+        [462, 774],
+        [463, 773],
+        [464, 774],
+        [470, 787, 8, 'Item reviewed:'],
+        [488, 787, 8, 'Reproduced as:'],
+    ) ) {
+        my ($from, $to, $ind2, $text) = @$ft;
+        $ind2 = ' ' unless $ind2;
+        for my $field ( $unimarc->field($from) ) {
+            my @sf;
+            push @sf, [ i => $text ] if $text;
+            for ( @{$field->subf} ) {
+                my ($letter, $value) = @$_;
+                if ( $letter eq 't') {
+                    $value =~ s/\x{0088}//g;
+                    $value =~ s/\x{0089}//g;
+                }
+                $letter = $letter eq '3' ? 'w' :
+                          $letter eq 'v' ? 'g' :
+                          $letter eq 'y' ? 'z' : $letter;
+                push @sf, [ $letter => $value ];
+            }
+            my $ind1 = $field->ind2 =~ /0/ ? 1 : 0;
             $record->append( MARC::Moose::Field::Std->new(
-                tag => '765', subf => [ [ t => $title ] ] ) );
+                tag => $to, ind1 => $ind1, ind2 =>$ind2, subf => \@sf ) );
         }
     }
 
