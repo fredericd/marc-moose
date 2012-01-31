@@ -1,5 +1,10 @@
 Revision history for Perl module marc-moose
 
+0.020 2012-01-31
+
+  - Add clone method to MARC::Moose::Field
+  - Add a MARC::Moose::Formater::UnimarcToMarc21 class
+
 0.019 
 
   - Add some tests
