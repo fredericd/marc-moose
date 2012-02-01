@@ -1,4 +1,5 @@
 package MARC::Moose::Formater::UnimarcToMarc21;
+# ABSTRACT: Convert biblio record from UNIMARC to MARC21
 use Moose;
 
 use 5.010;
@@ -173,6 +174,8 @@ override 'format' => sub {
     #print $record->as_formatted(), "\n";
 
     my $record = MARC::Moose::Record->new();
+
+    $record->_leader("     nam a22     7a 4500");
 
     my $code008 = '120130t        xxu||||| |||| 00| 0 ||| d';
 
@@ -354,7 +357,7 @@ override 'format' => sub {
     $record->append( MARC::Moose::Field::Control->new(
         tag => '008', value => $code008 ) );
 
-    # Le titre
+    # Title
     for my $field ( $unimarc->field('200') ) {
         my @sf;
         my ($a_index, $h_index) = (-1, -1);
@@ -1049,4 +1052,39 @@ override 'format' => sub {
 __PACKAGE__->meta->make_immutable;
 
 1;
+
+=head1 SYNOPSYS
+
+Read a UNIMARC ISO2709 file and dump it to STDOUT in text transformed into
+MARC21:
+
+ my $reader = MARC::Moose::Reader::File::Iso2709->new(
+   file => 'biblio-unimarc.iso' );
+ my $formater = MARC::Moose::Formater::UnimarcToMarc21->new();
+ while ( my $unimarc = $reader->read() ) {
+   my $marc21 = $formater->format($unimarc);
+   print $marc21->as('Text');
+ }
+
+Same with shortcut:
+
+ my $reader = MARC::Moose::Reader::File::Iso2709->new(
+   file => 'biblio-unimarc.iso' );
+ while ( my $unimarc = $reader->read() ) {
+   print $unimarc->as('UnimarcToMarc21')->as('Text');
+ }
+
+Read a UNIMARC ISO2709 file and dump it to another ISO2709 file transformed
+into MARC21:
+
+ my $reader = MARC::Moose::Reader::File::Iso2709->new(
+   file => 'biblio-unimarc.iso' );
+ my $writer = MARC::Moose::Writer::File->new(
+   file => 'biblio-marc21.iso',
+   formater => MARC::Moose::Formater::Iso2709->new()
+ );
+ my $tomarc21 = MARC::Moose::Formater::UnimarcToMarc21->new();
+ while ( my $unimarc = $reader->read() ) {
+   $writer->write( $tomarc21->format($unimarc) );
+ }
 
