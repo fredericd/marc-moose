@@ -165,7 +165,8 @@ push @unchanged, [320, 504],
                  [330, 520],
                  [332, 524],
                  [333, 521],
-                 [337, 538];
+                 [337, 538],
+                 [686, '084'];
 
 
 override 'format' => sub {
@@ -300,55 +301,46 @@ override 'format' => sub {
     # Language 101 => 041 and 008
     if ( my $field = $unimarc->field('101') ) {
         my @all = @{$field->subf};
-        if ( @all == 1 && $all[0]->[0] eq 'a' ) {
-            # No 041 is created
-            my $value = $all[0]->[1];
-            $value .= '   ';
-            $value = substr($value, 0, 3);
-            substr $code008, 35, 3, $value; 
-        }
-        else {
-            my $count_a = 0;
-            my (@sf, @sf_b);
-            for (@all) {
-                my ($letter, $value) = @$_;
-                given ($letter) {
-                    when ( /a/ ) {
-                        next if $count_a >= 6;
-                        $count_a++;
-                        if ( $count_a == 1 ) {
-                            $value .= '   ';
-                            $value = substr($value, 0, 3);
-                            substr $code008, 35, 3, $value; 
-                        }
-                        push @sf, [ a => $value];
+        my $count_a = 0;
+        my (@sf, @sf_b);
+        for (@all) {
+            my ($letter, $value) = @$_;
+            given ($letter) {
+                when ( /a/ ) {
+                    next if $count_a >= 6;
+                    $count_a++;
+                    if ( $count_a == 1 ) {
+                        $value .= '   ';
+                        $value = substr($value, 0, 3);
+                        substr $code008, 35, 3, $value; 
                     }
-                    when ( /c/ ) { push @sf, [ h => $value ]; }
-                    when ( /b/ ) { push @sf_b, $value; }
-                    when ( /d/ ) { push @sf, [ b => $value ]; }
-                    when ( /e/ ) { push @sf, [ f => $value ]; }
-                    when ( /f|g/ ) { }
-                    when ( /j/ ) { push @sf, [ b => $value ]; }
-                    when ( /h/ ) { push @sf, [ e => $value ]; }
-                    when ( /i/ ) { push @sf, [ g => $value ]; }
+                    push @sf, [ a => $value];
+                }
+                when ( /c/ ) { push @sf, [ h => $value ]; }
+                when ( /b/ ) { push @sf_b, $value; }
+                when ( /d/ ) { push @sf, [ b => $value ]; }
+                when ( /e/ ) { push @sf, [ f => $value ]; }
+                when ( /f|g/ ) { }
+                when ( /j/ ) { push @sf, [ b => $value ]; }
+                when ( /h/ ) { push @sf, [ e => $value ]; }
+                when ( /i/ ) { push @sf, [ g => $value ]; }
+            }
+        }
+        if ( @sf_b ) {
+            for ( @sf ) {
+                if ($_->[0] eq 'h') {
+                    $_->[1] .= ' ' . join(' ', @sf_b);
+                    last;
                 }
             }
-            if ( @sf_b ) {
-                for ( @sf ) {
-                    if ($_->[0] eq 'h') {
-                        $_->[1] .= ' ' . join(' ', @sf_b);
-                        last;
-                    }
-                }
-            }
-            my $ind1 = $field->ind1;
-            $ind1 = '0' if $ind1 eq ' ';
-            $ind1 = '1' if $ind1 eq '2';
-            $record->append( MARC::Moose::Field::Std->new(
-                tag => '041',
-                ind1 => $ind1,
-                subf => \@sf ) );
         }
+        my $ind1 = $field->ind1;
+        $ind1 = '0' if $ind1 eq ' ';
+        $ind1 = '1' if $ind1 eq '2';
+        $record->append( MARC::Moose::Field::Std->new(
+            tag => '041',
+            ind1 => $ind1,
+            subf => \@sf ) );
     }
     else {
         substr($code008, 35, 3) = '|||'; 
@@ -900,10 +892,13 @@ override 'format' => sub {
             my @sf;
             for ( @{$field->subf} ) {
                 my ($letter, $value) = @$_;
+                $value =~ s/^ *//, $value =~ s/ *$//;
                 next if $letter =~ /3/;
                 $letter = 'v' if $letter eq 'j';
                 push @sf, [ $letter => $value ];
             }
+            next unless @sf;
+            $sf[-1][1] = $sf[-1][1] . '.' if $sf[-1][1] !~ /\.$/;
             $record->append( MARC::Moose::Field::Std->new(
                 tag => $to, subf => \@sf ) );
         }
@@ -915,14 +910,6 @@ override 'format' => sub {
         my @sf = map { $_->[0] = '2' if $_->[0] eq 'v'; $_; } @{$field->subf};
         $record->append( MARC::Moose::Field::Std->new(  
             tag => '082', subf => \@sf ) );
-    }
-
-    # 686 => 084. On garde tous les sous-champs
-    for my $field ( $unimarc->field('686') ) {
-        my @sf = 
-        $record->append( MARC::Moose::Field::Std->new(  
-            tag => '084',
-            subf => [ map { $_; } @{$field->subf} ] ) );
     }
 
     # Les auteurs 700 => 100, 
@@ -974,7 +961,7 @@ override 'format' => sub {
             my $value = $sf[-1]->[1];
             $value =~ s/ *$//;
             $value =~ s/\.*$//;
-            $value .= '.';
+            $value .= '.' if $value !~ /[-\?]$/;
             $sf[-1]->[1] = $value;
             push @sf, [ 4 => $_ ] for @codes;
             $record->append( MARC::Moose::Field::Std->new(
