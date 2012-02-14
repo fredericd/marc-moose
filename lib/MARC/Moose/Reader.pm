@@ -28,6 +28,17 @@ has parser => (
 );
 
 
+=attr fh
+
+A file handle from which reading records. This can be a string with:
+
+  open my $fh, "<", \*str;
+
+=cut
+
+has fh => ( is => 'rw' );
+
+
 =method read
 
 Read one L<MARC::Moose::Record> record from the underlying data stream, and
@@ -39,6 +50,7 @@ sub read {
     my $self = shift;
 
     $self->count( $self->count + 1 );
+
     return 1;
 }
 

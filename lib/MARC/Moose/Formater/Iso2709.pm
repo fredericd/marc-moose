@@ -28,8 +28,9 @@ override 'format' => sub {
             }
         };
         $fields .= $str;
-        my $len = bytes::length($str);
-        #my $len = length($str);
+        #FIXME: Which of this lines is the correct one?
+        #my $len = bytes::length($str);
+        my $len = length($str);
         $directory .= sprintf( "%03s%04d%05d", $field->tag, $len, $from );
         $from += $len;
     }

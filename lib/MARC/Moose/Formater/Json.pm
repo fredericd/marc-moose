@@ -29,7 +29,7 @@ override 'format' => sub {
             );
         } @{ $record->fields } ],
     };
-    return to_json($rec, { pretty => $self->pretty } );
+    return to_json($rec, { pretty => $self->pretty } ) . ",\n";
 };
 
 __PACKAGE__->meta->make_immutable;

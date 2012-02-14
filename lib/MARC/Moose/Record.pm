@@ -54,6 +54,12 @@ my $parser = {
 };
 
 
+{
+    $MARC::Moose::Record::formater = $formater;
+    $MARC::Moose::Record::parser = $parser;
+}
+
+
 sub set_leader_length {
     my ($self, $length, $offset) = @_;
 

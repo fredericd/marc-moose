@@ -1,0 +1,111 @@
+#!/usr/bin/perl
+
+package main;
+# PODNAME: marcmoose
+# ABSTRACT: Read and output MARC record file
+
+use 5.010;
+use utf8;
+use strict;
+use warnings;
+
+use Pod::Usage;
+use Getopt::Long;
+use MARC::Moose::Record;
+use MARC::Moose::Writer;
+use MARC::Moose::Reader::File::Iso2709;
+use MARC::Moose::Reader::File::Marcxml;
+use YAML;
+
+#binmode(STDOUT, ':utf8');
+#binmode(STDERR, ':utf8');
+
+my $verbose   = 0;
+my $help      = 0;
+my $parser    = 'iso2709';
+my $formater  = 'text';
+my $output    = '';
+my $converter = '';
+GetOptions( 
+    'verbose'       => \$verbose,
+    'help'          => \$help,
+    'p|parser=s'    => \$parser,
+    'f|formater=s'  => \$formater,
+    'o|output=s'    => \$output,
+    'c|converter=s' => \$converter,
+);
+
+usage() if $help ||
+           $parser !~ /iso2709|marcxml/ || 
+           $formater !~ /text|iso2709|marcxml|json/ ||
+           ( $converter && $converter !~ /unimarctomarc21/ );
+
+my $fh;
+if ( $output ) {
+    open $fh, ">", $output or die "Can't create file: $output";
+}
+else {
+    $fh = *STDOUT;
+}
+for (@ARGV) {
+    unless (-f) {
+        say "File doesn't exist: $_";
+        next;
+    }
+    my $reader =
+        $parser =~ /iso2709/
+        ? MARC::Moose::Reader::File::Iso2709->new( file => $_ )
+        : MARC::Moose::Reader::File::Marcxml->new( file => $_ ); 
+    my $writer = MARC::Moose::Writer->new(
+        fh => $fh,
+        formater => $MARC::Moose::Record::formater->{$formater}->new(),
+    );
+    $writer->begin();
+    while ( my $record = $reader->read() ) {
+        $record = $record->as($converter)  if $converter;   
+        $writer->write($record);
+    }
+    $writer->end();
+}
+
+
+sub usage {
+    pod2usage( -verbose => 2 );
+} 
+
+__END__
+
+=pod
+
+=head1 SYNOPSYS
+
+ marc-moose marc.iso
+ marc-moose --formater text marc.iso
+ marc-moose --formater json marc.iso
+ marc-moose --converter unimarc2marc21 marc.iso
+ marc-moose --parser marcxml --formater iso2709 --output marc.xml marc.iso
+
+=head1 PARAMETERS
+
+=over
+
+=item -p|--parser iso2709|marcxml
+
+Parse input file. Two format are accepted: ISO2709 and MarcXML.
+
+=item -f|--formater text|json|iso2709|marcxml
+
+Format records.
+
+=item -o|--output C<file name>
+
+Output record to a file. Without this parameter output to stdout.
+
+=item -c|--converter unimarctomarc21
+
+Performs a conversion from UNIMARC to MARC21.
+
+=back
+     
+=cut
+

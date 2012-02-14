@@ -31,6 +31,17 @@ has formater => (
 );
 
 
+=attr fh
+
+A file handle to which writing records. This can be a string with:
+
+  open my $fh, ">", \$str;
+
+=cut
+
+has fh => ( is => 'rw' );
+
+
 =method begin
 
 Method to be call before beginning writing record with L<write> method. By
@@ -40,7 +51,8 @@ default, this is just a call to the formater C<begin> method.
 
 sub begin {
     my $self = shift;
-    print $self->formater->begin();
+    my $fh = $self->fh;
+    print $fh $self->formater->begin();
 }
 
 
@@ -54,7 +66,8 @@ formater C<end> method.
 
 sub end {
     my $self = shift;
-    print $self->formater->end();
+    my $fh = $self->fh;
+    print $fh $self->formater->end();
 }
 
 
@@ -67,11 +80,10 @@ the record is printed on STDOUT.
 =cut
 
 sub write {
-    my ($self, $record) = shift;
-
+    my ($self, $record) = @_;
+    my $fh = $self->fh;
     $self->count( $self->count + 1 );
-
-    print $self->formater->format($record);
+    print $fh $self->formater->format($record);
 }
 
 __PACKAGE__->meta->make_immutable;

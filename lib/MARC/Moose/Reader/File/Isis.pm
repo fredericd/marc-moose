@@ -18,6 +18,8 @@ records from a file.
 
 has '+parser' => ( default => sub { MARC::Moose::Parser::Isis->new() } );
 
+=cut
+
 
 override 'read' => sub {
     my $self = shift;
