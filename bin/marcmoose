@@ -47,6 +47,7 @@ if ( $output ) {
 else {
     $fh = *STDOUT;
 }
+binmode($fh, ':encoding(utf8)');
 for (@ARGV) {
     unless (-f) {
         say "File doesn't exist: $_";

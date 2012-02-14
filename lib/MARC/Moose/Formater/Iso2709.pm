@@ -3,6 +3,8 @@ package MARC::Moose::Formater::Iso2709;
 
 use namespace::autoclean;
 use Moose;
+use 5.010;
+use utf8;
 
 extends 'MARC::Moose::Formater';
 
@@ -29,8 +31,8 @@ override 'format' => sub {
         };
         $fields .= $str;
         #FIXME: Which of this lines is the correct one?
-        #my $len = bytes::length($str);
-        my $len = length($str);
+        my $len = bytes::length($str);
+        #my $len = length($str);
         $directory .= sprintf( "%03s%04d%05d", $field->tag, $len, $from );
         $from += $len;
     }
