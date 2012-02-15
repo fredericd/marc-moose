@@ -25,7 +25,7 @@ override 'parse' => sub {
     my ($self, $raw) = @_;
 
     return unless $raw;
-    my $utf8_flag = utf8::is_utf8($raw);
+    my $utf8_flag = utf8::is_utf8($raw) || 1;
 
     my $record = MARC::Moose::Record->new();
 
