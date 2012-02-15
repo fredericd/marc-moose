@@ -1,7 +1,6 @@
 package MARC::Moose::Reader::File::Isis;
 # ABSTRACT: A file reader for ISIS (DOS) encoded records
 
-use namespace::autoclean;
 use Moose;
 
 use Carp;

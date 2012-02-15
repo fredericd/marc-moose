@@ -1,7 +1,6 @@
 package MARC::Moose::Reader::String;
 # ABSTRACT: A reader from a string
 
-use namespace::autoclean;
 use Moose;
 
 use Carp;

@@ -1,7 +1,6 @@
 package MARC::Moose::Reader::String::Iso2709;
 # ABSTRACT: File reader for MARC::Moose record from ISO2709 string
 
-use namespace::autoclean;
 use Moose;
 
 use Carp;

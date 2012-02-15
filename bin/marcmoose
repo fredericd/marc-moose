@@ -17,8 +17,6 @@ use MARC::Moose::Reader::File::Iso2709;
 use MARC::Moose::Reader::File::Marcxml;
 use YAML;
 
-#binmode(STDOUT, ':utf8');
-#binmode(STDERR, ':utf8');
 
 my $verbose   = 0;
 my $help      = 0;
@@ -48,31 +46,47 @@ else {
     $fh = *STDOUT;
 }
 binmode($fh, ':encoding(utf8)');
-for (@ARGV) {
-    unless (-f) {
-        say "File doesn't exist: $_";
-        next;
+my $writer = MARC::Moose::Writer->new(
+    fh => $fh,
+    formater => $MARC::Moose::Record::formater->{$formater}->new(),
+);
+$writer->begin();
+
+my $reader;
+if (@ARGV) {
+    for (@ARGV) {
+        unless (-f) {
+            say "File doesn't exist: $_";
+            next;
+        }
+        $reader =
+            $parser =~ /iso2709/
+            ? MARC::Moose::Reader::File::Iso2709->new( file => $_ )
+            : MARC::Moose::Reader::File::Marcxml->new( file => $_ ); 
+        readwrite();
     }
-    my $reader =
-        $parser =~ /iso2709/
-        ? MARC::Moose::Reader::File::Iso2709->new( file => $_ )
-        : MARC::Moose::Reader::File::Marcxml->new( file => $_ ); 
-    my $writer = MARC::Moose::Writer->new(
-        fh => $fh,
-        formater => $MARC::Moose::Record::formater->{$formater}->new(),
-    );
-    $writer->begin();
-    while ( my $record = $reader->read() ) {
-        $record = $record->as($converter)  if $converter;   
-        $writer->write($record);
-    }
-    $writer->end();
 }
+else {
+    $reader =
+        $parser =~ /iso2709/
+        ? MARC::Moose::Reader::File::Iso2709->new( fh => *STDIN )
+        : MARC::Moose::Reader::File::Marcxml->new( fh => *STDIN ); 
+    readwrite();
+}
+
+$writer->end();
 
 
 sub usage {
     pod2usage( -verbose => 2 );
 } 
+
+sub readwrite {
+    while ( my $record = $reader->read() ) {
+        $record = $record->as($converter)  if $converter;   
+        $writer->write($record);
+    }
+}
 
 __END__
 
@@ -80,15 +94,26 @@ __END__
 
 =head1 SYNOPSYS
 
+ marc-moose
+ marc-moose --help
  marc-moose marc.iso
  marc-moose --formater text marc.iso
  marc-moose --formater json marc.iso
  marc-moose --converter unimarc2marc21 marc.iso
  marc-moose --parser marcxml --formater iso2709 --output marc.xml marc.iso
 
+=head1 DESCRIPTION
+
+Command line utility using MARC::Moose module to handle MARC records which are
+read from files or stdin.
+
 =head1 PARAMETERS
 
 =over
+
+=item -h|--help
+
+Display this help.
 
 =item -p|--parser iso2709|marcxml
 
@@ -96,7 +121,7 @@ Parse input file. Two format are accepted: ISO2709 and MarcXML.
 
 =item -f|--formater text|json|iso2709|marcxml
 
-Format records.
+Format records. By default text.
 
 =item -o|--output C<file name>
 

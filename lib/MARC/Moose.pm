@@ -1,7 +1,6 @@
 package MARC::Moose;
 # ABSTRACT: Moose based MARC records set of tools
 
-use namespace::autoclean;
 use Moose 1.00;
 
 use Carp;

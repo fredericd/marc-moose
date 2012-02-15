@@ -11,7 +11,7 @@ extends 'MARC::Moose::Reader';
 =attr file
 
 Name of the file to read MARC::Moose::Record from. A error is thrown if the file
-does't exist.
+does't exist. Setting this attribute will set L<fh> attribute
 
 =cut
 
@@ -24,19 +24,20 @@ has file => (
             croak "File doesn't exist: " . $file;
         }   
         $self->{file} = $file;
+        open my $fh, '<',$self->file
+             or croak "Impossible to open file: " . $self->file;
+        $self->fh($fh);
     }   
 );
 
+
+=attr fh
+
+File handle form which reading records.
+
+=cut
+
 has fh => ( is => 'rw' );
-
-
-sub BUILD {
-    my $self = shift;
-
-    open my $fh, '<',$self->file
-         or croak "Impossible to open file: " . $self->file;
-    $self->fh($fh);
-}
 
 
 sub read {

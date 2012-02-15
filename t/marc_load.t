@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 21;
+use Test::More tests => 20;
 BEGIN {
     use_ok( 'MARC::Moose::Record' );
     use_ok( 'MARC::Moose::Field' );
@@ -25,5 +25,4 @@ BEGIN {
     use_ok( 'MARC::Moose::Reader::String');
     use_ok( 'MARC::Moose::Reader::String::Iso2709' );
     use_ok( 'MARC::Moose::Writer' );
-    use_ok( 'MARC::Moose::Writer::File' );
 }
