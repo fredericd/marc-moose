@@ -1,7 +1,6 @@
 package MARC::Moose::Field;
 # ABSTRACT: Marc field base object
 
-use namespace::autoclean;
 use Moose;
 use Moose::Util::TypeConstraints;
 

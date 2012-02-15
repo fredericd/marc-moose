@@ -1,7 +1,6 @@
 package MARC::Moose::Formater::Marcxml;
 #ABSTRACT: MARC::Moose record formater into MARCXML
 
-use namespace::autoclean;
 use Moose;
 
 extends 'MARC::Moose::Formater';

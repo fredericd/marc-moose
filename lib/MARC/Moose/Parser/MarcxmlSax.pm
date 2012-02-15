@@ -1,7 +1,6 @@
 package MARC::Moose::Parser::MarcxmlSax;
 # ABSTRACT: Parser for MARXML records using SAX parser
 
-use namespace::autoclean;
 use Moose;
 
 extends 'MARC::Moose::Parser';

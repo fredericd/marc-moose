@@ -1,7 +1,6 @@
 package MARC::Moose::Reader::File::Marcxml;
 # ABSTRACT: File reader for MARCXML file
 
-use namespace::autoclean;
 use Moose;
 
 use Carp;

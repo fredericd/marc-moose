@@ -1,7 +1,6 @@
 package MARC::Moose::Parser::Legacy;
 # ABSTRACT: Parser for MARC::Record legacy records
 
-use namespace::autoclean;
 use Moose;
 
 extends 'MARC::Moose::Parser';

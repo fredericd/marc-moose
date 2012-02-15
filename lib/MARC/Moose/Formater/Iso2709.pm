@@ -1,7 +1,6 @@
 package MARC::Moose::Formater::Iso2709;
 # ABSTRACT: MARC::Moose record formater into ISO 2709 format
 
-use namespace::autoclean;
 use Moose;
 use 5.010;
 use utf8;

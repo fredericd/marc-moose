@@ -1,8 +1,9 @@
 package MARC::Moose::Parser::Iso2709;
 # ABSTRACT: Parser for ISO2709 records
 
-use namespace::autoclean;
 use Moose;
+use 5.010;
+use utf8;
 
 extends 'MARC::Moose::Parser';
 

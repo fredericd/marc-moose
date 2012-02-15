@@ -1,7 +1,6 @@
 package MARC::Moose::Formater;
 # ABSTRACT: Base class to format Marc record
 
-use namespace::autoclean;
 use Moose;
 
 

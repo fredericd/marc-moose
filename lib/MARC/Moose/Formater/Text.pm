@@ -1,7 +1,6 @@
 package MARC::Moose::Formater::Text;
 # ABSTRACT: Record formater into a text representation
 
-use namespace::autoclean;
 use Moose;
 
 extends 'MARC::Moose::Formater';

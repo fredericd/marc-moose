@@ -1,7 +1,6 @@
 package MARC::Moose::Record;
 # ABSTRACT: MARC::Moose bibliographic record
 
-use namespace::autoclean;
 use Moose;
 
 use Carp;

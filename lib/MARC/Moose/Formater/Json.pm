@@ -1,7 +1,6 @@
 package MARC::Moose::Formater::Json;
 # ABSTRACT: Record formater into a Json representation
 
-use namespace::autoclean;
 use Moose;
 
 extends 'MARC::Moose::Formater';

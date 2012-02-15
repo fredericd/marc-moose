@@ -1,7 +1,6 @@
 package MARC::Moose::Parser::Yaml;
 # ABSTRACT: Parser for YAML records
 
-use namespace::autoclean;
 use Moose;
 
 extends 'MARC::Moose::Parser';

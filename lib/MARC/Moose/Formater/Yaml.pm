@@ -1,7 +1,6 @@
 package MARC::Moose::Formater::Yaml;
 # ABSTRACT: Marc record formater into YAML representation
 
-use namespace::autoclean;
 use Moose;
 
 extends 'MARC::Moose::Formater';

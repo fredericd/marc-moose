@@ -1,7 +1,6 @@
 package MARC::Moose::Reader::File;
 # ABSTRACT: A reader from a file
 
-use namespace::autoclean;
 use Moose;
 
 use Carp;

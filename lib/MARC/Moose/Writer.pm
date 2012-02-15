@@ -1,7 +1,6 @@
 package MARC::Moose::Writer;
 # ABSTRACT: A base object to write somewhere MARC::Moose records
 
-use namespace::autoclean;
 use Moose;
 
 =attr count

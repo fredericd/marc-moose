@@ -1,15 +1,9 @@
 package MARC::Moose::Field::Std;
 # ABSTRACT: Standard Marc Field (tag >= 010)
 
-use namespace::autoclean;
 use Moose;
 
 extends 'MARC::Moose::Field';
-
-use overload
-    '%{}' => \&subfield,
-    '${}' => \&subfield;
-
 
 has ind1 => (is => 'rw', isa => 'Str', default => ' ');
 has ind2 => (is => 'rw', isa => 'Str', default => ' ');

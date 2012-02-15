@@ -1,7 +1,6 @@
 package MARC::Moose::Formater::Legacy;
 # ABSTRACT: Record formater into the legacy MARC::Record object
 
-use namespace::autoclean;
 use Moose;
 
 extends 'MARC::Moose::Formater';

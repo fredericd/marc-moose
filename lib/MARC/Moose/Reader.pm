@@ -1,7 +1,6 @@
 package MARC::Moose::Reader;
 # ABSTRACT: Base class for a reader returning MARC::Moose records
 
-use namespace::autoclean;
 use Moose;
 
 =attr count

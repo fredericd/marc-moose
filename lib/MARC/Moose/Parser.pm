@@ -1,9 +1,9 @@
 package MARC::Moose::Parser;
 # ABSTRACT: A record parser base class
 
-use namespace::autoclean;
 use Moose;
-
+use 5.010;
+use utf8;
 
 # FIXME Experimental. Not used yet.
 #has converter => (
