@@ -6,12 +6,12 @@ use Moose::Util::TypeConstraints;
 
 subtype 'Tag'
     => as 'Str'
-    => where { $_ =~ /^\d{3}$/ }
-    => message { 'A 3 digit is required' };
+    => where { $_ =~ /^\w{3}$/ }
+    => message { 'A 3 alphanumeric characters is required' };
 
 =attr tag
 
-3-digits identifing a field. Required.
+3-alphanumerics identifing a field. Required.
 
 =cut
 has tag => ( is => 'rw', isa => 'Tag', required => 1, );
