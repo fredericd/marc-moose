@@ -7,7 +7,7 @@ use Carp;
 use MARC::Moose::Record;
 use MARC::Moose::Parser::Iso2709;
 
-extends 'MARC::Moose::Reader::String';
+with 'MARC::Moose::Reader::String';
 
 
 has parser => ( 
@@ -32,7 +32,7 @@ sub BUILD {
 
 
 
-override 'read' => sub {
+sub read {
     my $self = shift;
 
     my $count = $self->count;
@@ -45,7 +45,7 @@ override 'read' => sub {
     $count++;
     $self->count( $count );
     return $record;
-};
+}
 
 __PACKAGE__->meta->make_immutable;
 

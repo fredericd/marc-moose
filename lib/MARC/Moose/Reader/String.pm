@@ -1,17 +1,12 @@
 package MARC::Moose::Reader::String;
-# ABSTRACT: A reader from a string
+# ABSTRACT: A Moose::Role reader from a string
 
-use Moose;
+use Moose::Role;
 
-use Carp;
-use MARC::Moose::Record;
-
-extends 'MARC::Moose::Reader';
+with 'MARC::Moose::Reader';
 
 has string => ( is => 'rw', isa => 'Str' );
 
-
-__PACKAGE__->meta->make_immutable;
 
 1;
 

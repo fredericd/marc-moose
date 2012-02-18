@@ -8,16 +8,16 @@ use Carp;
 use MARC::Moose::Record;
 use MARC::Moose::Parser::Iso2709;
 
-extends 'MARC::Moose::Reader::File';
+with 'MARC::Moose::Reader::File';
 
 
 has '+parser' => ( default => sub { MARC::Moose::Parser::Iso2709->new() } );
 
 
-override 'read' => sub {
+sub read {
     my $self = shift;
 
-    $self->SUPER::read();
+    $self->count( $self->count + 1);
 
     my $fh = $self->{fh};
 
@@ -30,7 +30,7 @@ override 'read' => sub {
     $raw =~ s/^[ \x00\x0a\x0d\x1a]+//;
 
     return $self->parser->parse( $raw );
-};
+}
 
 
 __PACKAGE__->meta->make_immutable;

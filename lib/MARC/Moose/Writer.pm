@@ -1,19 +1,10 @@
 package MARC::Moose::Writer;
-# ABSTRACT: A base object to write somewhere MARC::Moose records
+# ABSTRACT: A Moose::Role to write somewhere MARC::Moose records
 
 use Moose;
 
-=attr count
+with 'MooseX::RW::Writer';
 
-Number of records that have been written with L<write> method.
-
-=cut
-
-has count => (
-    is      => 'rw',
-    isa     => 'Int',
-    default => 0
-);
 
 
 =attr formater
@@ -52,7 +43,7 @@ sub begin {
     my $self = shift;
     my $fh = $self->fh;
     print $fh $self->formater->begin();
-}
+};
 
 
 =method end
@@ -67,7 +58,7 @@ sub end {
     my $self = shift;
     my $fh = $self->fh;
     print $fh $self->formater->end();
-}
+};
 
 
 =method write($record)
@@ -78,14 +69,13 @@ the record is printed on STDOUT.
 
 =cut
 
-sub write {
+sub write  {
     my ($self, $record) = @_;
     my $fh = $self->fh;
-    $self->count( $self->count + 1 );
     print $fh $self->formater->format($record);
+    $self->count( $self->count + 1);
 }
 
-__PACKAGE__->meta->make_immutable;
 
 1;
 

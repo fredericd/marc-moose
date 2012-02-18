@@ -7,7 +7,7 @@ use Carp;
 use MARC::Moose::Record;
 use MARC::Moose::Parser::Marcxml;
 
-extends 'MARC::Moose::Reader::File';
+with 'MARC::Moose::Reader::File';
 
 
 =attr parser
@@ -19,10 +19,10 @@ By default, a L<MARC::Moose::Parser::MarcxmlSax> parser is used.
 has '+parser' => ( default => sub { MARC::Moose::Parser::MarcxmlSax->new() } );
 
 
-override 'read' => sub {
+sub read {
     my $self = shift;
 
-    $self->SUPER::read();
+    $self->count($self->count + 1);
 
     my $fh = $self->{fh};
 
@@ -38,7 +38,7 @@ override 'read' => sub {
     return unless $raw =~ /<record>/;
 
     return $self->parser->parse( $raw );
-};
+}
 
 __PACKAGE__->meta->make_immutable;
 
