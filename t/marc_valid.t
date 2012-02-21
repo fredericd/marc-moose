@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 26;
+use Test::More tests => 27;
 
 use MARC::Moose::Record;
 use MARC::Moose::Field;
@@ -67,3 +67,8 @@ ok( $fields[0] == $field_100 && $fields[1] == $field_110, "is the right order" )
 @fields = $record->field('...');
 ok( $fields[0] == $field_100 && $fields[1] == $field_110 && $fields[2] == $field_245,
     "all 2 subfields in order" );
+
+$record->append( $field_100 );
+$record->delete('1\d\d');
+ok( !($record->field('100') || $record->field('110')), "delete method has deleted 2 100 & 1 110 tags");
+

@@ -1,6 +1,10 @@
 Revision history for Perl module marc-moose
 
-0.022 2012-02.17
+0.023 2012-02-21
+
+  - Add a delete method to MARC::Moose::Record class, and test case
+
+0.022 2012-02-17
 
   - MooseX::RW integration
 

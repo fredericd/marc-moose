@@ -17,6 +17,11 @@ use MARC::Moose::Parser::Legacy;
 use MARC::Moose::Parser::Yaml;
 
 
+=attr leader
+
+Read-only string. The leader is fixed by set_leader_length method.
+
+=cut
 has leader => (
     is      => 'ro', 
     isa     => 'Str',
@@ -24,6 +29,12 @@ has leader => (
     default => ' ' x 24,
 );
 
+=attr fields
+
+ArrayRef on MARC::Moose::Field objects: MARC::Moose:Fields::Control and
+MARC::Moose::Field::Std.
+
+=cut
 has fields => ( 
     is => 'rw', 
     isa => 'ArrayRef', 
@@ -59,6 +70,19 @@ my $parser = {
 }
 
 
+=method set_leader_length( I<length>, I<offset> )
+
+This method is called to reset leader length of record and offset of data
+section. This means something only for ISO2709 formated records. So this method
+is exlusively called by any formater which has to build a valid ISO2709 data
+stream. It also forces leader position 10 and 20-23 since this variable values
+aren't variable at all for any ordinary MARC record.
+
+Called by L<MARC::Moose::Formater::Iso2709>.
+
+ $record->set_leader_length( $length, $offset );
+
+=cut
 sub set_leader_length {
     my ($self, $length, $offset) = @_;
 
@@ -78,6 +102,25 @@ sub set_leader_length {
 }
 
 
+=method append( I<field> )
+
+Append a MARC::Moose::Field in the record. The record is appended at the end of
+numerical section, ie if you append for example a 710 field, it will be placed
+at the end of the 7xx fields section, just before 8xx section or at the end of
+fields list.
+
+ $record->append(
+   MARC::Moose::Field::Std->new(
+    tag  => '100',
+    subf => [ [ a => 'Poe, Edgar Allan' ],
+              [ u => 'Translation' ] ]
+ ) );
+
+You can also append an array of MARC::Moose::Field. In this case, the array
+will be appended as for a unique field at the position of the first field of
+the array.
+
+=cut
 sub append {
     my $self = shift;
 
@@ -109,6 +152,18 @@ sub append {
 
 my %_field_regex;
 
+
+=method field( I<tag> )
+
+Returns a list of tags that match the field specifier, or an empty list if
+nothing matched.  In scalar context, returns the first matching tag, or undef
+if nothing matched.
+         
+The field specifier can be a simple number (i.e. "245"), or use the "."
+notation of wildcarding (i.e. subject tags are "6.."). All fields are returned
+if "..." is specified.
+
+=cut
 sub field {
     my $self = shift;
     my @specs = @_;  
@@ -134,6 +189,38 @@ sub field {
 }
 
 
+=method delete(spec1, spec2, ...)
+
+Delete all fields with tags matching the given specification. For example:
+
+ $record->delete('11.', '\d\d9');
+
+will delete all fields with tag begining by '11' and ending with '9'.
+
+=cut
+sub delete {
+    my $self = shift;
+
+    return unless @_;
+
+    $self->fields( [ grep {
+        my $tag = $_->tag;
+        my $keep = 1;
+        for my $tag_spec ( @_ ) {
+            if ( $tag =~ $tag_spec ) { $keep = 0; last; }
+        }
+        $keep;
+    } @{$self->fields} ] );
+}
+
+
+=method as( I<format> )
+
+Returns a formated version of the record as defined by I<format>. Format are standard
+formater provided by the MARC::Moose::Record package: Iso2709, Text, Marcxml,
+Json, Yaml, Legacy.
+
+=cut
 sub as {
     my ($self, $format) = @_;
     my $f = $formater->{ lc($format) };
@@ -214,61 +301,6 @@ __PACKAGE__->meta->make_immutable;
 MARC::Moose::Record is an object, Moose based object, representing a MARC::Moose
 bibliographic record. It can be a MARC21, UNIMARC, or whatever biblio record.
 
-=attr leader
-
-Read-only string. The leader is fixed by set_leader_length method.
-
-=attr fields
-
-ArrayRef on MARC::Moose::Field objects: MARC::Moose:Fields::Control and
-MARC::Moose::Field::Std.
-
-=method append( I<field> )
-
-Append a MARC::Moose::Field in the record. The record is appended at the end of
-numerical section, ie if you append for example a 710 field, it will be placed
-at the end of the 7xx fields section, just before 8xx section or at the end of
-fields list.
-
- $record->append(
-   MARC::Moose::Field::Std->new(
-    tag  => '100',
-    subf => [ [ a => 'Poe, Edgar Allan' ],
-              [ u => 'Translation' ] ]
- ) );
-
-You can also append an array of MARC::Moose::Field. In this case, the array
-will be appended as for a unique field at the position of the first field of
-the array.
-
-
-=method field( I<tag> )
-
-Returns a list of tags that match the field specifier, or an empty list if
-nothing matched.  In scalar context, returns the first matching tag, or undef
-if nothing matched.
-         
-The field specifier can be a simple number (i.e. "245"), or use the "."
-notation of wildcarding (i.e. subject tags are "6.."). All fields are returned
-if "..." is specified.
-
-=method as( I<format> )
-
-Returns a formated version of the record as defined by I<format>. Format are standard
-formater provided by the MARC::Moose::Record package: Iso2709, Text, Marcxml,
-Json, Yaml, Legacy.
-
-=method set_leader_length( I<length>, I<offset> )
-
-This method is called to reset leader length of record and offset of data
-section. This means something only for ISO2709 formated records. So this method
-is exlusively called by any formater which has to build a valid ISO2709 data
-stream. It also forces leader position 10 and 20-23 since this variable values
-aren't variable at all for any ordinary MARC record.
-
-Called by L<MARC::Moose::Formater::Iso2709>.
-
- $record->set_leader_length( $length, $offset );
 
 =head1 SEE ALSO
 
