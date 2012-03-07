@@ -346,6 +346,21 @@ override 'format' => sub {
         substr($code008, 35, 3) = '|||'; 
     }
 
+    # 125 => 008
+    # FIXME: 125$b isn't handled at all
+    if ( my $field = $unimarc->field('125') ) {
+        my $value = $field->subfield('a');
+        my ($pos0, $pos1);
+        $pos0 =  substr($value, 0, 1) if $value && length($value) >= 1;
+        $pos1 =  substr($value, 1, 1) if $value && length($value) >= 2;
+        $pos0 ||= '|';
+        $pos0 = 'n' if $pos0 eq 'x';
+        $pos1 ||= '|';
+        $pos1 = 'n' if $pos1 eq 'x';
+        $pos1 = ' ' if $pos1 eq 'y';
+        substr($code008, 20, 2) = $pos0 . $pos1;
+    }
+
     $record->append( MARC::Moose::Field::Control->new(
         tag => '008', value => $code008 ) );
 
