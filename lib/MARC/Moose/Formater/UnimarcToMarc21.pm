@@ -182,6 +182,11 @@ override 'format' => sub {
 
     my @sf040;
 
+    # 001 => 001
+    for my $field ( $unimarc->field('001' ) ) {
+        $record->append($field->clone());
+    }
+
     # ISBN 010 => 020
     for my $field ( $unimarc->field('010') ) {
         my @sf;

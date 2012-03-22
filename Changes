@@ -1,5 +1,10 @@
 Revision history for Perl module marc-moose
 
+0.025 2012-03-24
+
+  - Fix cloning field MARC::Moose::Field::Control
+  - Copy 001 tag from UNIMARC to MARC21
+
 0.024 2012-03-07
 
   - Add UNIMARC 125 conversion in M::M::F::UnimarcToMarc21 class
