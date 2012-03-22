@@ -562,14 +562,14 @@ override 'format' => sub {
                 when ( /a/ ) {
                     if ( $a_index == -1 ) {
                         push @sf, [ a => $value ];
-                        $a_index = $#_;
+                        $a_index = $#sf;
                     }
                     else {
                         my $prev = $sf[$a_index]->[1];
                         $prev =~ s/ *$//;
                         $prev =~ s/;$//;
                         $prev =~ s/ *$//;
-                        $sf[$a_index]->[1] = "$prev; $value";
+                        $sf[$a_index]->[1] = "$prev ; $value";
                     }
                 }
                 when ( /v/ ) {
