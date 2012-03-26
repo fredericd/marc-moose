@@ -250,6 +250,10 @@ override 'format' => sub {
     if ( my $field = $unimarc->field('100') ) {
         # Date entered on file
         my $code100 = $field->subfield('a');
+        unless ($code100) {
+            print $unimarc->as('Text');
+            exit;
+        }
         substr $code008, 0, 6, substr($code100, 2, 6);
 
         # Type of publication date

@@ -30,21 +30,20 @@ override 'parse' => sub {
     my $record = MARC::Moose::Record->new();
 
     my $leader = substr($raw, 0, 24);
-    #print "leader: $leader\n";
     $record->_leader( $leader );
 
     $raw = substr($raw, 24);
-    my $end_directory = index $raw, "\x1e";
-    my $directory = substr $raw, 0, $end_directory;
-    my $content = substr($raw, $end_directory + 1);
-    my $number_of_tag = length($directory) / 12; 
+    my $directory_len = substr($leader, 12, 5) - 25;
+    my $directory = substr $raw, 0, $directory_len;
+    my $content = substr($raw, $directory_len+1);
+    my $number_of_tag = $directory_len / 12; 
     my @fields;
     for (my $i = 0; $i < $number_of_tag; $i++) {
         my $off = $i * 12;
         my $tag = substr($directory, $off, 3);
+        next if $tag =~ /\x{1e}/; # FIXME: it happens!
         my $len = substr($directory, $off+3, 4) - 1;
         my $pos = substr($directory, $off+7, 5) + 0;
-        next if $pos + $len > bytes::length($content);
         my $value = bytes::substr($content, $pos, $len);
         utf8::decode($value) if $utf8_flag;
         #$value = $self->converter->convert($value);
