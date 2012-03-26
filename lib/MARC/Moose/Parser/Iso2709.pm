@@ -41,11 +41,12 @@ override 'parse' => sub {
     for (my $i = 0; $i < $number_of_tag; $i++) {
         my $off = $i * 12;
         my $tag = substr($directory, $off, 3);
-        next if $tag =~ /\x{1e}/; # FIXME: it happens!
+        next if $tag !~ /^[a-zA-Z0-9]*$/; # FIXME: it happens!
         my $len = substr($directory, $off+3, 4) - 1;
         my $pos = substr($directory, $off+7, 5) + 0;
         my $value = bytes::substr($content, $pos, $len);
         utf8::decode($value) if $utf8_flag;
+        next unless $value;
         #$value = $self->converter->convert($value);
         if ( $value =~ /\x1F/ ) { # There are some letters
             my $i1 = substr($value, 0, 1);
