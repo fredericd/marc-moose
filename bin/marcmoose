@@ -99,7 +99,7 @@ __END__
  marc-moose marc.iso
  marc-moose --formater text marc.iso
  marc-moose --formater json marc.iso
- marc-moose --converter unimarc2marc21 marc.iso
+ marc-moose --converter unimarctomarc21 marc.iso
  marc-moose --parser marcxml --formater iso2709 --output marc.xml marc.iso
 
 =head1 DESCRIPTION

@@ -15,6 +15,7 @@ use MARC::Moose::Parser::Iso2709;
 use MARC::Moose::Parser::MarcxmlSax;
 use MARC::Moose::Parser::Legacy;
 use MARC::Moose::Parser::Yaml;
+use MARC::Moose::Parser::Json;
 
 
 =attr leader
@@ -61,6 +62,7 @@ my $parser = {
     marcxml         => MARC::Moose::Parser::MarcxmlSax->new(),
     legacy          => MARC::Moose::Parser::Legacy->new(),
     yaml            => MARC::Moose::Parser::Yaml->new(),
+    json            => MARC::Moose::Parser::Json->new(),
 };
 
 
