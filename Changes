@@ -1,5 +1,9 @@
 Revision history for Perl module marc-moose
 
+0.027 2012-09-13
+
+  - Fix a bug in MARC::Moose::Formater::Legacy
+
 0.026 2012-04-10
 
   - Add a JSON parser

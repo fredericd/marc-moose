@@ -27,15 +27,17 @@ override 'format' => sub {
             for (@{$field->subf}) {
                 my ($letter, $value) = @$_;
                 utf8::decode($value);
-                push @sf, $letter, $value;
+                push @sf, $letter, $value if $value;
             }
-            $nfield = MARC::Field->new( $field->tag, $field->ind1, $field->ind2, @sf );
+            $nfield = MARC::Field->new(
+                $field->tag,
+                $field->ind1 || ' ',
+                $field->ind2 || ' ', @sf ) if @sf;
         }
-        $marc->append_fields($nfield);
+        $marc->append_fields($nfield) if $nfield;
     }
     return $marc;
 };
 
 __PACKAGE__->meta->make_immutable;
-
 1;
