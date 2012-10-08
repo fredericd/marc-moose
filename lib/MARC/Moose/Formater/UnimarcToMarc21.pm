@@ -248,58 +248,59 @@ override 'format' => sub {
 
     # 100 => 008
     if ( my $field = $unimarc->field('100') ) {
-        # Date entered on file
-        my $code100 = $field->subfield('a');
-        substr $code008, 0, 6, substr($code100, 2, 6);
+        if ( my $code100 = $field->subfield('a') ) {
+            # Date entered on file
+            substr $code008, 0, 6, substr($code100, 2, 6);
 
-        # Type of publication date
-        my $value = substr($code100, 8, 1);
-        $value = $typeofpub{$value} || ' ';
-        substr $code008, 6, 1, $value;
+            # Type of publication date
+            my $value = substr($code100, 8, 1);
+            $value = $typeofpub{$value} || ' ';
+            substr $code008, 6, 1, $value;
 
-        # Date 1
-        $value = substr($code100, 9, 4);
-        if ( 1 ) { #FIXME Determine if it's a serials
-            # Not serials
-            my $count = 0;
-            for ( split //, $value ) { $count++ if / /; }
-            $value =~ s/ /0/g  if $count <= 3;
-        }
-        else {
-            # A serials
-            $value =~ s/ /u/g;
-        }
-        substr $code008, 7, 4, $value;
+            # Date 1
+            $value = substr($code100, 9, 4);
+            if ( 1 ) { #FIXME Determine if it's a serials
+                # Not serials
+                my $count = 0;
+                for ( split //, $value ) { $count++ if / /; }
+                $value =~ s/ /0/g  if $count <= 3;
+            }
+            else {
+                # A serials
+                $value =~ s/ /u/g;
+            }
+            substr $code008, 7, 4, $value;
 
-        # Date 2
-        $value = substr($code100, 13, 4);
-        if ( 1 ) { #FIXME Determine if it's a serials
-            # Not serials
-            my $count = 0;
-            for ( split //, $value ) { $count++ if / /; }
-            $value =~ s/ /0/g  if $count <= 3;
-        }
-        else {
-            # A serials
-            $value =~ s/ /u/g;
-        }
-        substr $code008, 11, 4, $value;
+            # Date 2
+            $value = substr($code100, 13, 4);
+            if ( 1 ) { #FIXME Determine if it's a serials
+                # Not serials
+                my $count = 0;
+                for ( split //, $value ) { $count++ if / /; }
+                $value =~ s/ /0/g  if $count <= 3;
+            }
+            else {
+                # A serials
+                $value =~ s/ /u/g;
+            }
+            substr $code008, 11, 4, $value;
 
-        # 3 positions for target audience
-        $value = substr($code100, 17, 3);
-        for (my $i=0; $i < 3; $i++) {
-            $value = substr($code100, 17+$i, 1);
-            $value = $target_audience{$value} || ' ';   
-            substr $code008, 17+$i, 1, $value;
-        }
-        
-        # Language of cataloging
-        push @sf040, [ b => substr($code100, 22, 3) ];
+            # 3 positions for target audience
+            $value = substr($code100, 17, 3);
+            for (my $i=0; $i < 3; $i++) {
+                $value = substr($code100, 17+$i, 1);
+                $value = $target_audience{$value} || ' ';   
+                substr $code008, 17+$i, 1, $value;
+            }
+            
+            # Language of cataloging
+            push @sf040, [ b => substr($code100, 22, 3) ];
 
-        # Alphabet of title, converted if serials
-        # FIXME
-        if ( 0 ) {
-            substrr $code008, 33, 1, substr($code100,34,1);
+            # Alphabet of title, converted if serials
+            # FIXME
+            if ( 0 ) {
+                substrr $code008, 33, 1, substr($code100,34,1);
+            }
         }
     }
 
