@@ -1055,6 +1055,11 @@ override 'format' => sub {
         }
     }
 
+    # 856: copied as it is
+    if ( my @fields = $unimarc->field('856') ) {
+        $record->append(@fields)
+    }
+
     return $record;
 };
 
