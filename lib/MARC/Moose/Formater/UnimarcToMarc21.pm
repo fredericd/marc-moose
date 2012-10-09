@@ -520,8 +520,9 @@ override 'format' => sub {
                     }
                 }
                 when ( /f/ ) {
+                    print $unimarc->as('Text');
                     if ( $b_index == -1 ) {
-                        $sf[-1]->[1] .= " / ";
+                        $sf[-1]->[1] .= " / " if @sf;
                         push @sf, [ b => $value];
                         $b_index = $#sf;
                     }
