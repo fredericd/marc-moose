@@ -46,8 +46,8 @@ override 'parse' => sub {
             }
             push @fields, MARC::Moose::Field::Std->new(
                 tag => $tag,
-                ind1 => $ind1,
-                ind2 => $ind2,
+                ind1 => $ind1 || ' ',
+                ind2 => $ind2 || ' ',
                 subf => \@subf );
             shift @parts;
             next;

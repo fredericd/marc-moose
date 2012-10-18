@@ -1,5 +1,10 @@
 Revision history for Perl module marc-moose
 
+0.028 2012-10-18
+
+  - Fix MARCXML parsing. Forces indicators to space if there are empty in XML
+    source file, which is wrong but occurs.
+
 0.027 2012-09-13
 
   - Fix a bug in MARC::Moose::Formater::Legacy
