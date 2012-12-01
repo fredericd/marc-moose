@@ -257,14 +257,14 @@ my $tester = {
                 for ( my $count = 0; $count < $max; $count++ ) {
                     my $record = $parser->parse( $raw );
                 }
-                $start = gettimeofday;
                 print "Parsed $max records from XML using MARC::Moose and ",
                       "$sax_parser : ", gettimeofday - $start, "\n";
+                $start = gettimeofday;
                 for ( my $count = 0; $count < $max; $count++ ) {
                     my $record = MARC::Record->new_from_xml($raw);
                     $count++;
                 }
-                print "Parsed $max records from XML using MARC and ",
+                print "Parsed $max records from XML using MARC::Record and ",
                       "$sax_parser : ", gettimeofday - $start, "\n";
             }
         },
@@ -293,7 +293,6 @@ my $tester = {
             for ( my $count = 0; $count < $max; $count++ ) {
                 my $record = MARC::Record::new_from_usmarc($raw);
             }
-            $start = gettimeofday;
             print "Parsed $max records from ISO2709 using MARC::Record: ",
                   gettimeofday - $start, "\n";
 
