@@ -520,7 +520,6 @@ override 'format' => sub {
                     }
                 }
                 when ( /f/ ) {
-                    print $unimarc->as('Text');
                     if ( $b_index == -1 ) {
                         $sf[-1]->[1] .= " / " if @sf;
                         push @sf, [ b => $value];
@@ -651,7 +650,7 @@ override 'format' => sub {
                 when ( /l/ ) {
                     $record->append( MARC::Moose::Field::Std->new(
                         tag => '265', ind1 => '1', ind2 => '0',
-                        subf => [ a => $value ] ) );
+                        subf => [ [  a => $value ] ] ) );
                 }
                 when ( /m/ ) {
                     $record->append( MARC::Moose::Field::Std->new(

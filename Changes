@@ -1,5 +1,9 @@
 Revision history for Perl module marc-moose
 
+0.029 2013-03-04
+
+  - Fix RT Bug #83123, when 210$l
+
 0.028 2012-10-18
 
   - Fix MARCXML parsing. Forces indicators to space if there are empty in XML
