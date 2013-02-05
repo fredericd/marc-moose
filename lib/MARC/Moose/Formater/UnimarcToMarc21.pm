@@ -172,8 +172,6 @@ push @unchanged, [320, 504],
 override 'format' => sub {
     my ($self, $unimarc) = @_;
 
-    #print $record->as_formatted(), "\n";
-
     my $record = MARC::Moose::Record->new();
 
     $record->_leader("     nam a22     7a 4500");
@@ -623,7 +621,7 @@ override 'format' => sub {
                 when ( /f/ ) {
                     unless ( $found{$letter} ) {
                         $found{$letter} = 1;
-                        $sf[-1]->[1] .= ", $value";
+                        $sf[-1]->[1] .= ", $value" if @sf;
                     }
                 }
                 when ( /g/ ) {
@@ -963,7 +961,7 @@ override 'format' => sub {
                         push @sf, [ b => $value ];
                     }
                     when ( 'f' ) {
-                        $sf[-1]->[1] .= ',';
+                        $sf[-1]->[1] .= ',' if @sf;
                         push @sf, [ d => $value ];
                     }
                     when ( 'g' ) {
