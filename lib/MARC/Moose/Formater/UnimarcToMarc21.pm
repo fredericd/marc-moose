@@ -304,6 +304,11 @@ override 'format' => sub {
 
     # Language 101 => 041 and 008
     if ( my $field = $unimarc->field('101') ) {
+        # FIXME: à virer
+        if ( ref($field) eq 'MARC::Moose::Field::Control' ) {
+            say $unimarc->as('Text');
+            exit;
+        }
         my @all = @{$field->subf};
         my $count_a = 0;
         my (@sf, @sf_b);
@@ -1003,7 +1008,7 @@ override 'format' => sub {
                     }
                     when ( 'g' ) {
                         $value = "($value)" unless $value =~ /^\(/;
-                        $sf[-1]->[1] .= " $value";
+                        $sf[-1]->[1] .= " $value" if @sf;
                     }
                     when ( 'h' ) {
                         $sf[-1]->[1] .= " $value";
@@ -1028,7 +1033,7 @@ override 'format' => sub {
                     when ( 'f' ) {
                         $value = $sf[-1]->[0] eq 'n'
                                  ? " :$value"
-                                 : "($value";
+                                 : "($value" if @sf;
                         push @sf, [ d => $value ];
                     }
                     when ( '4' ) {
