@@ -919,6 +919,8 @@ override 'format' => sub {
                 $value =~ s/^ *//, $value =~ s/ *$//;
                 next if $letter =~ /3/;
                 $letter = 'v' if $letter eq 'j';
+                $letter = 'x' if $etter eq 'z';
+                $letter = 'z' if $letter eq 'x';
                 push @sf, [ $letter => $value ];
             }
             next unless @sf;
