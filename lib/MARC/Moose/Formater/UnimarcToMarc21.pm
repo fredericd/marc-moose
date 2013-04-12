@@ -853,6 +853,7 @@ override 'format' => sub {
         [464, 774],
         [470, 787, 8, 'Item reviewed:'],
         [488, 787, 8, 'Reproduced as:'],
+        [491, 774],
     ) ) {
         my ($from, $to, $ind2, $text) = @$ft;
         $ind2 = ' ' unless $ind2;
@@ -907,8 +908,8 @@ override 'format' => sub {
     }
 
     # 605 => 630 - 606 => 650 - 607 => 651 - 608 => 650
-    # On conserve à leur place les lettres a x y et z. j (subdivision de forme)
-    # et déplacée en v.
+    # On conserve à leur place les lettres a x j (subdivision de forme)
+    # On inverse y et z. et déplacée en v.
     # On suppr les $3
     for my $fromto ( ( [605, 630], [606, 650], [607, 651], [608, 650] ) ) {
         my ($from, $to) = @$fromto;
@@ -918,9 +919,15 @@ override 'format' => sub {
                 my ($letter, $value) = @$_;
                 $value =~ s/^ *//, $value =~ s/ *$//;
                 next if $letter =~ /3/;
-                $letter = 'v' if $letter eq 'j';
-                $letter = 'x' if $etter eq 'z';
-                $letter = 'z' if $letter eq 'x';
+                if ( $letter eq 'j' ) {
+                    $letter = 'v';
+                }
+                elsif ( $letter eq 'y' ) {
+                    $letter = 'z';
+                }
+                elsif ( $letter eq 'z' ) {
+                    $letter = 'y';
+                }
                 push @sf, [ $letter => $value ];
             }
             next unless @sf;
