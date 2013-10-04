@@ -1,5 +1,10 @@
 Revision history for Perl module marc-moose
 
+1.0.0 2013-10-04
+
+  - Bump version to 1.0! It's stable.
+  - Fix Unimarc to MARC21 failing due to malformed 100 fixed field
+
 0.030 2013-04-12
 
   - Fix bug on 630/650/651 MARC21 fields. $x and $y subfields where inverted.

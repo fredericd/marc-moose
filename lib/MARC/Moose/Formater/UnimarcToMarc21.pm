@@ -246,7 +246,8 @@ override 'format' => sub {
 
     # 100 => 008
     if ( my $field = $unimarc->field('100') ) {
-        if ( my $code100 = $field->subfield('a') ) {
+        my $code100 = $field->subfield('a');
+        if ( $code100 && length($code100) > 20 ) {
             # Date entered on file
             substr $code008, 0, 6, substr($code100, 2, 6);
 
@@ -866,7 +867,8 @@ override 'format' => sub {
                     $value =~ s/\x{0088}//g;
                     $value =~ s/\x{0089}//g;
                 }
-                $letter = $letter eq '3' ? 'w' :
+                $letter = $letter eq '1' ? 'a' :
+                          $letter eq '3' ? 'w' :
                           $letter eq 'v' ? 'g' :
                           $letter eq 'y' ? 'z' : $letter;
                 push @sf, [ $letter => $value ];
