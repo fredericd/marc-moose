@@ -939,6 +939,12 @@ override 'format' => sub {
         }
     }
 
+    # 675 => 080, $v and $z aren't converted
+    for my $field ( $unimarc->field('675') ) {
+        my @sf = grep { $_->[0] !~ /v|z/; } @{$field->subf};
+        $record->append( MARC::Moose::Field::Std->new(  
+            tag => '080', subf => \@sf ) );
+    }
 
     # 676 => 082, $v => $2
     for my $field ( $unimarc->field('676') ) {
