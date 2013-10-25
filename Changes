@@ -1,9 +1,12 @@
-Revision history for Perl module marc-moose
+Revision history for Perl module MARC::Moose
 
-1.0.1 To be released
+1.0.2 2013-10-25
 
-  - Improve Unimarc to MARC21 conversion:
-    - 675 => 080
+  - Changes compliance with CPAN::Changes::Spec
+
+1.0.1 2013-10-25
+
+  - Improve Unimarc to MARC21 conversion: 675 => 080
 
 1.0.0 2013-10-04
 
@@ -60,8 +63,34 @@ Revision history for Perl module marc-moose
   - Add clone method to MARC::Moose::Field
   - Add a MARC::Moose::Formater::UnimarcToMarc21 class
 
-0.019 
+0.019 2012-01-24
 
   - Add some tests
   - Improve documentation
   - Use SAX parser by default for MARCXML records
+
+0.018 2011-11-30
+
+0.017 2011-08-23
+
+0.016 2011-06-25
+
+0.015 2011-06-15
+
+0.014 2011-03-31
+
+0.013 2011-03-30
+
+0.012 2011-01-10
+
+0.011 2010-11-26
+
+0.010 2010-11-24
+
+0.009 2010-11-14
+
+0.008 2010-11-14
+
+0.007 2010-11-12
+
+0.006 2010-11-12
