@@ -4,6 +4,7 @@ package MARC::Moose::Parser::Iso2709;
 use Moose;
 use 5.010;
 use utf8;
+require bytes;
 
 extends 'MARC::Moose::Parser';
 
