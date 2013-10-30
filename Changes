@@ -1,5 +1,10 @@
 Revision history for Perl module MARC::Moose
 
+1.0.4 2013-10-30
+
+  - Improve Unimarc to MARC21: keep 9xx fields
+  - Few docs
+
 1.0.3 2013-10-28
 
   - Fix RT#89817 Undefined subroutine &bytes::substr called
