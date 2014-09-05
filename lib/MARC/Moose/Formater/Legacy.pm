@@ -27,7 +27,7 @@ override 'format' => sub {
             for (@{$field->subf}) {
                 my ($letter, $value) = @$_;
                 utf8::decode($value);
-                push @sf, $letter, $value if $value;
+                push @sf, $letter, $value if defined $value;
             }
             $nfield = MARC::Field->new(
                 $field->tag,

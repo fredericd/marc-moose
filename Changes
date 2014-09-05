@@ -1,5 +1,10 @@
 Revision history for Perl module MARC::Moose
 
+1.0.7 2014-09-05
+
+  - Fix a bug in Legay (aka MARC::Record) formater, which was striping subfield
+    values equals to 0
+
 1.0.6 2014-04-12
 
   - Unimarc to MARC21: calculate 245-Title field second indicator based on
