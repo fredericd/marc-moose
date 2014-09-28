@@ -1,0 +1,65 @@
+#!/usr/bin/perl
+
+
+
+package main;
+# PODNAME: marcmoose
+# ABSTRACT: Read and output MARC record file
+
+use Modern::Perl;
+use Pod::Usage;
+use Getopt::Long;
+use MARC::Moose::Lint::Checker;
+use MARC::Moose::Lint::Processor;
+
+
+my $verbose   = 1;
+my $help      = 0;
+GetOptions( 
+    'verbose'       => \$verbose,
+    'help'          => \$help,
+);
+
+usage() if @ARGV != 2; 
+my ($rule, $file) = @ARGV;
+unless (-f $file) {
+    say "File doesn't exist: $file";
+    exit;
+}
+my $processor = MARC::Moose::Lint::Processor->new(
+    lint    => MARC::Moose::Lint::Checker->new( file => $rule ),
+    file    => $file,
+    verbose => $verbose,
+);
+$processor->run();
+
+
+
+sub usage {
+    pod2usage( -verbose => 2 );
+} 
+
+
+__END__
+
+=pod
+
+=head1 SYNOPSYS
+
+ marcmoose-lint --help
+ marcmoose-lint unimarc.rules marc.iso
+
+=head1 DESCRIPTION
+
+Command line utility to 'lint' biblio records based on a validation rules file.
+Biblio records file must be in ISO2709 format (UTF-8). Validation rules file is
+in the format described in L<MARC::Moose::Lint::Checker>. At the end of the
+process, 3 files are generated: C<marc.iso.ok>, a ISO2709 file containing
+biblio records that have passed the validation rules, C<marc.iso.bad>, a
+ISO2709 file which contains records that have failed the validation, and
+C<marc.iso.log> a text file containing a text version of the biblio records
+that have failed the validation, followed by a description of the violated
+rules.
+
+=cut
+
