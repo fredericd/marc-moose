@@ -3,8 +3,8 @@
 
 
 package main;
-# PODNAME: marcmoose
-# ABSTRACT: Read and output MARC record file
+# PODNAME: marcmoose-lint
+# ABSTRACT: Lint ISO2709 file againt validation rules
 
 use Modern::Perl;
 use Pod::Usage;

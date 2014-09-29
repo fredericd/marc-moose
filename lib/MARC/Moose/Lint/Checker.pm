@@ -30,26 +30,28 @@ sub BUILD {
     open my $fh, "<", $file;
     my @rules;
     my @parts;
+    my $linenumber = 0;
     while (<$fh>) {
+        $linenumber++;
         chop;
         s/ *$//;
         last if /^====/;
 
-        if ( $_ ) {
+        if ( length($_) ) {
             push @parts, $_;
             next;
         }
         #say;
-        if (@parts < 4) {
+        if (@parts < 4 && @parts != 1) {
             say;
-            say "Invalid rule: must contain at least four parts";
+            say "Line $linenumber: Invalid rule: must contain at least four parts: $_";
             exit;
         }
         my ($tag, $ind1, $ind2) = (shift @parts, shift @parts, shift @parts);
         my @rule = ();
         if ( $tag !~ /^[0-9]{3}[_|\+]*/ ) {
             say;
-            say "Invalid tag portion";
+            say "Line $linenumber: Invalid tag portion";
             exit;
         }
 
@@ -77,6 +79,7 @@ sub BUILD {
         push @rules, \@rule;
         @parts = ();
     }
+    $self->rules(\@rules);
 
     my $code;
     if ( /^====/ ) {
@@ -96,8 +99,6 @@ sub BUILD {
             s/ *$//;
         }
     }
-
-    $self->rules(\@rules);
 }
 
 
