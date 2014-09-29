@@ -4,11 +4,7 @@ package main;
 # PODNAME: marcmoose
 # ABSTRACT: Read and output MARC record file
 
-use 5.010;
-use utf8;
-use strict;
-use warnings;
-
+use Modern::Perl;
 use Pod::Usage;
 use Getopt::Long;
 use MARC::Moose::Record;
@@ -94,13 +90,13 @@ __END__
 
 =head1 SYNOPSYS
 
- marc-moose
- marc-moose --help
- marc-moose marc.iso
- marc-moose --formater text marc.iso
- marc-moose --formater json marc.iso
- marc-moose --converter unimarctomarc21 marc.iso
- marc-moose --parser marcxml --formater iso2709 --output marc.xml marc.iso
+ marcmoose
+ marcmoose --help
+ marcmoose marc.iso
+ marcmoose --formater text marc.iso
+ marcmoose --formater json marc.iso
+ marcmoose --converter unimarctomarc21 marc.iso
+ marcmoose --parser marcxml --formater iso2709 --output marc.xml marc.iso
 
 =head1 DESCRIPTION
 

@@ -339,4 +339,5 @@ This is for example, a simplified standard UNIMARC validation rules file:
 
 =for :list
 * L<MARC::Moose>
+* L<MARC::Moose::Lint::Processor>
 

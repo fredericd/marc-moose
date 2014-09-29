@@ -147,5 +147,5 @@ violating the rules + a description of violated rules.
 
 =for :list
 * L<MARC::Moose>
-
+* L<MARC::Moose::Lint::Checker
 
