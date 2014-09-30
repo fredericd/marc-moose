@@ -43,28 +43,10 @@ override 'clone' => sub {
 };
 
 
-sub subfield {
-    my ($self, $letter) = @_;
+=method subfield( I<regexp> )
 
-    return unless defined($letter);
-
-    my @values;
-    for ( @{$self->subf} ) {
-        push @values, $_->[1] if $_->[0] eq $letter;
-    }
-
-    return unless @values;
-    return wantarray ? @values : $values[0];
-}
-
-__PACKAGE__->meta->make_immutable;
-
-1;
-
-=method field( I<letter> )
-
-In scalar context, returns the first I<letter> subfield content. In list
-context, returns all I<letter> subfields content.
+In scalar context, returns the first content of subfield which letter match
+regular expression C<regexp> . In list context, returns all subfields content.
 
 For example:
 
@@ -74,8 +56,28 @@ For example:
       [ a => 'Part 1' ],
       [ x => '2010' ],
       [ a => 'Part 2' ],
+      [ b => 'Part 3' ],
     ] );
-  my $value = $field->subfield('a'); # Get 'Part 1'
-  my @values = $field->subfield('a'); # Get ('Part1', 'Part 2')
+  my $value = $field->subfield('a|b'); # Get 'Part 1'
+  my @values = $field->subfield('a|b'); # Get ('Part1', 'Part 2')
+
+=cut
+sub subfield {
+    my ($self, $letter) = @_;
+
+    return unless defined($letter);
+
+    my @values;
+    for ( @{$self->subf} ) {
+        push @values, $_->[1] if $_->[0] =~ $letter;
+    }
+
+    return unless @values;
+    return wantarray ? @values : $values[0];
+}
+
+__PACKAGE__->meta->make_immutable;
+
+1;
 
 

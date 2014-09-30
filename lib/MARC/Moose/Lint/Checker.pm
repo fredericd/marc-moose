@@ -64,12 +64,29 @@ sub BUILD {
 
         my @subf = map {
             my @letter;
-            /^([a-zA-Z0-9\+_A-Z]*) *(.*)$/;
-            my ($letter, $regexp) = ($1, $2);
-            push @letter, substr($letter, 0, 1);
-            push @letter, $letter =~ /_/ ? 1 : 0;
-            push @letter, $letter =~ /\+/ ? 1 : 0;
-            push @letter, ($letter =~ /([A-Z]+)/ ? $1 : 0);
+            s/^ *//;
+            s/ *$//;
+            my ($letter, $table, $regexp) = ('', 0, '');
+            if ( /^(.*)\@(.*) +(.*)$/ ) {
+                $letter = $1;
+                $table = $2;
+                $regexp = $3;
+            }
+            elsif ( /^(.*) +(.*)$/ ) {
+                $letter = $1;
+                $regexp = $2;
+            }
+            else {
+                $letter = $_;
+            }
+            my $mandatory = $letter =~ /_/ ? 1 : 0;
+            $letter =~ s/_//g;
+            my $repeatable = $letter =~ /\+/ ? 1 : 0;
+            $letter =~ s/\+//g;
+            push @letter, $letter;
+            push @letter, $mandatory;
+            push @letter, $repeatable;
+            push @letter, $table;
             push @letter, $regexp if $regexp;
             \@letter;
         } @parts;
@@ -135,7 +152,7 @@ sub check {
 
         $i_field = 1;
         for my $field (@fields) {
-            if ( $tag ge '010' ) {
+            if ( ref($field) eq 'MARC::Moose::Field::Std' ) {
                 for (my $i=1; $i <=2 ; $i++) {
                     my $value = $i == 1 ? $field->ind1 : $field->ind2;
                     my $regexp = $ind->[$i-1];
@@ -144,33 +161,46 @@ sub check {
                     $append->("invalid indicator $i, must be " . $ind->[$i-1])
                         if $value !~ /[$regexp]/;
                 }
-            }
-            for (@$subf) {
-                my ($letter, $mand, $repet, $table, $regexp) = @$_;
-                my @values = $field->subfield($letter);
-                $append->("\$$letter mandatory subfield is missing")
-                    if @values == 0 && $mand;
-                $append->("\$$letter is repeated") if @values > 1 && !$repet;
-                if ($regexp) {
-                    my $i = 1;
-                    my $multi = @values > 1;
-                    for my $value (@values) {
-                        if ( $table && ! $self->table->{$table}->{$value} ) {
-                            $append->(
-                                "invalid subfield '\$$letter" .
-                                ($multi ? "($i)" : "") .
-                                " $value' not in $table table");
+                # Search subfields which shouldn't be there
+                my @forbidden;
+                for (@{$field->subf}) {
+                    my ($letter, $value) = @$_;
+                    next if grep { $_->[0] =~ $letter } @$subf;
+                    push @forbidden, $letter;
+                }
+                $append->("forbidden subfield(s): " . join(', ', @forbidden))
+                    if @forbidden;
+
+                for (@$subf) {
+                    my ($letters, $mand, $repet, $table, $regexp) = @$_;
+                    for my $letter (split //, $letters) {
+                        my @values = $field->subfield($letter);
+                        $append->("\$$letter mandatory subfield is missing")
+                            if @values == 0 && $mand;
+                        $append->("\$$letter is repeated") if @values > 1 && !$repet;
+                        if ($regexp) {
+                            my $i = 1;
+                            my $multi = @values > 1;
+                            for my $value (@values) {
+                                if ( $table && ! $self->table->{$table}->{$value} ) {
+                                    $append->(
+                                        "subfield \$$letter" .
+                                        ($multi ? "($i)" : "") .
+                                        " contains '$value' not in $table table");
+                                }
+                                if ( $value !~ /$regexp/ ) {
+                                    $append->(
+                                        "invalid subfield \$$letter" .
+                                        ($multi ? "($i)" : "") .
+                                        ", should be $regexp");
+                                }
+                                $i++;
+                            }
                         }
-                        if ( $value !~ /$regexp/ ) {
-                            $append->(
-                                "invalid subfield \$$letter" .
-                                ($multi ? "($i)" : "") .
-                                ", should be $regexp");
-                        }
-                        $i++;
                     }
                 }
             }
+
             $i_field++;
         }
     }
@@ -212,19 +242,17 @@ tags. For example:
  102+
  #
  #
- a+CTRY
- b+
- c+
+ abc+i@CTRY ^[a-z]{3}$
  2+
 
 Line 1 contains the field tag. If a + is present, the field is repeatable. If a
 _ is present, the field is mandatory. Line 2 and 3 contains a regular
 expression on which indicators 1 and 2 are validated. # means a blank
-indicator.  Line 4 and the following define rules for validating subfields. A
-first part contains subfield's letter, and + (repeatable) and/or _ (mandatory),
-followed by an optional validation table name. A blank separates the first part
-from the second part. The second part contains a reular expression on which
-subfield content is validated.
+indicator. Line 4 and the following define rules for validating subfields. A
+first part contains subfield's letters, and + (repeatable) and/or _ (mandatory),
+followed by an optional validation table name begining with @. A blank
+separates the first part from the second part. The second part contains a
+regular expression on which subfield content is validated.
 
 (2) Validation tables part of the file allow to define several validation
 tables. The table name begins with ==== TABLE NAME in uppercase. Then each line
@@ -236,79 +264,20 @@ This is for example, a simplified standard UNIMARC validation rules file:
  #
  #
  a ^[0-9]{8}[a-ku][0-9 ]{8}[abcdeklu ]{3}[a-huyz][01 ][a-z]{3}[a-cy][01|02|03|04|05|06|07|08|09|10|11|50]{2}
- 
- 101
- 0,1,2
+
+ 101_
+ 0|1|2
  #
- a+LANG ^[a-z]{3}$
- b+LANG ^[a-z]{3}$
- c+LANG ^[a-z]{3}$
- d+ :^[a-z]{3}$
- f+ ^[a-z]{3}$
- g+ ^[a-z]{3}$
- h+ ^[a-z]{3}$
- i+ ^[a-z]{3}$
- j+ ^[a-z]{3}$
- 
- 102
- #
- #
- a+CTRY
- b+
- c+
- 2+
- 
- 105
- #
- #
- a ^.{13}$
- 
- 106
- #
- #
- a ^.{1}$
- 
+ abcdfghij+@LANG ^[a-z]{3}$
+
  200_
  0|1
- #|1
- a_+
- b+
- c+
- d+
- e+
- f+
- g+
- h+
- i+
- v
- z+
- 5+
- 
- 205+
  #
- #      
- a 
- b+ 
- d+ 
- f+ 
- g+
- 
- 206+
- #|0     
- #      
- a 
- b+ 
- c 
- d 
- e 
- f
- 
- 207   
- #       
- 0|1    
- a+
- z+ ^.{7}$
- 
+ a_+
+ bcdefghi+
+ v
+ z5+
+
  ==== CTRY
  AF
  AL
