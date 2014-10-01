@@ -14,9 +14,10 @@ be validated.
 =cut
 has file => (is => 'rw');
 
-has rules => (is => 'rw');
+has rules => (is => 'rw', isa => 'HashRef');
 
 has table => (is => 'rw', isa => 'HashRef', default => sub { {} });
+
 
 
 sub BUILD {
@@ -31,6 +32,7 @@ sub BUILD {
     my @rules;
     my @parts;
     my $linenumber = 0;
+    my %rules;
     while (<$fh>) {
         $linenumber++;
         chop;
@@ -96,11 +98,12 @@ sub BUILD {
             push @rule, \@subf;
         }
         #say Dump(\@rule);
+        $rules{$tag_digit} = \@rule;
 
         push @rules, \@rule;
         @parts = ();
     }
-    $self->rules(\@rules);
+    $self->rules( \%rules );
 
     my $code;
     if ( /^====/ ) {
@@ -144,82 +147,103 @@ sub check {
         push @text, ": ", shift;
         push @ret, join('', @text);
     };
-    for my $rule (@{$self->rules}) {
+    my $fields_by_tag;
+    for my $field ( @{$record->fields} ) {
+        $fields_by_tag->{$field->tag} ||= [];
+        push @{$fields_by_tag->{$field->tag}}, $field;
+    }
+
+    # Find out unknown fields
+    my $rules = $self->rules;
+    {
+        my @unknown;
+        for my $tag ( keys %$fields_by_tag ) {
+            push @unknown, $tag unless $rules->{$tag};
+        }
+        push @ret, "$_: Unknown tag" for @unknown;
+    }
+
+    for my $rule ( values %$rules ) {
+        # Test if a mandatory field is missing, and if a non-repeatable field
+        # is repeated
         my ($mandatory, $repeatable);
         ($tag, $mandatory, $repeatable) = @$rule;
-        @fields = $record->field($tag);
-        unless (@fields) {
+        my $fields = $fields_by_tag->{$tag};
+        unless ($fields) {
             push @ret, "$tag: missing mandatory field" if $mandatory;
             next;
         }
+        @fields = @$fields;
         push @ret, "$tag: non-repeatable field"  if !$repeatable && @fields > 1;
 
         $i_field = 1;
-        my $is_control_field = $tag lt '010';
-        if ( $tag lt '010' ) { # Control field
+
+        # Control field
+        if ( $tag lt '010' ) {
             my $regexp;
             (undef, undef, undef, $regexp) = @$rule;
             if ( $regexp ) {
                 for my $field (@fields) {
-                    $append->("invalid value, which does't match /$regexp/")
+                    $append->("invalid value, doesn't match /$regexp/")
                         if $field->value !~ /$regexp/; 
                     $i_field++;
                 }
             }
+            next;
         }
-        else {
-            my ($ind, $subf);
-            (undef, undef, undef, $ind, $subf) = @$rule;
-            for my $field (@fields) {
-                next if ref($field) ne 'MARC::Moose::Field::Std';
-                for (my $i=1; $i <=2 ; $i++) {
-                    my $value = $i == 1 ? $field->ind1 : $field->ind2;
-                    my $regexp = $ind->[$i-1];
-                    $regexp =~ s/#/ /g;
-                    $regexp =~ s/,/|/g;
-                    $append->("invalid indicator $i '$value' , must be " . $ind->[$i-1])
-                        if $value !~ /[$regexp]/;
-                }
-                # Search subfields which shouldn't be there
-                my @forbidden;
-                for (@{$field->subf}) {
-                    my ($letter, $value) = @$_;
-                    next if grep { $_->[0] =~ $letter } @$subf;
-                    push @forbidden, $letter;
-                }
-                $append->("forbidden subfield(s): " . join(', ', @forbidden))
-                    if @forbidden;
 
-                for (@$subf) {
-                    my ($letters, $mand, $repet, $table, $regexp) = @$_;
-                    for my $letter (split //, $letters) {
-                        my @values = $field->subfield($letter);
-                        $append->("\$$letter mandatory subfield is missing")
-                            if @values == 0 && $mand;
-                        $append->("\$$letter is repeated") if @values > 1 && !$repet;
-                        if ($regexp) {
-                            my $i = 1;
-                            my $multi = @values > 1;
-                            for my $value (@values) {
-                                if ( $table && ! $self->table->{$table}->{$value} ) {
-                                    $append->(
-                                        "subfield \$$letter" .
-                                        ($multi ? "($i)" : "") .
-                                        " contains '$value' not in $table table");
-                                }
-                                if ( $value !~ /$regexp/ ) {
-                                    $append->(
-                                        "invalid subfield \$$letter" .
-                                        ($multi ? "($i)" : "") .
-                                        ", should be $regexp");
-                                }
-                                $i++;
+        # Standard field
+        my ($ind, $subf);
+        (undef, undef, undef, $ind, $subf) = @$rule;
+        for my $field (@fields) {
+            next if ref($field) ne 'MARC::Moose::Field::Std';
+            for (my $i=1; $i <=2 ; $i++) {
+                my $value = $i == 1 ? $field->ind1 : $field->ind2;
+                my $regexp = $ind->[$i-1];
+                $regexp =~ s/#/ /g;
+                $regexp =~ s/,/|/g;
+                $append->("invalid indicator $i '$value' , must be " . $ind->[$i-1])
+                    if $value !~ /$regexp/;
+            }
+            # Search subfields which shouldn't be there
+            my @forbidden;
+            for (@{$field->subf}) {
+                my ($letter, $value) = @$_;
+                next if grep { $_->[0] =~ $letter } @$subf;
+                push @forbidden, $letter;
+            }
+            $append->("forbidden subfield(s): " . join(', ', @forbidden))
+                if @forbidden;
+
+            for (@$subf) {
+                my ($letters, $mand, $repet, $table, $regexp) = @$_;
+                for my $letter (split //, $letters) {
+                    my @values = $field->subfield($letter);
+                    $append->("\$$letter mandatory subfield is missing")
+                        if @values == 0 && $mand;
+                    $append->("\$$letter is repeated") if @values > 1 && !$repet;
+                    if ($regexp) {
+                        my $i = 1;
+                        my $multi = @values > 1;
+                        for my $value (@values) {
+                            if ( $table && ! $self->table->{$table}->{$value} ) {
+                                $append->(
+                                    "subfield \$$letter" .
+                                    ($multi ? "($i)" : "") .
+                                    " contains '$value' not in $table table");
                             }
+                            if ( $value !~ /$regexp/ ) {
+                                $append->(
+                                    "invalid subfield \$$letter" .
+                                    ($multi ? "($i)" : "") .
+                                    ", should be $regexp");
+                            }
+                            $i++;
                         }
                     }
                 }
-                $i_field++;
             }
+            $i_field++;
         }
     }
 
