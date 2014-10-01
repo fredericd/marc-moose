@@ -1,10 +1,8 @@
 #!/usr/bin/perl
 
-
-
 package main;
 # PODNAME: marcmoose-lint
-# ABSTRACT: Lint ISO2709 file againt validation rules
+# ABSTRACT: Lint ISO2709 file against validation rules
 
 use Modern::Perl;
 use Pod::Usage;
@@ -13,14 +11,14 @@ use MARC::Moose::Lint::Checker;
 use MARC::Moose::Lint::Processor;
 
 
-my $verbose   = 1;
-my $help      = 0;
+my ($verbose, $help) = (1, 0);
 GetOptions( 
-    'verbose'       => \$verbose,
-    'help'          => \$help,
+    'verbose!' => \$verbose,
+    'help'     => \$help,
 );
 
-usage() if @ARGV != 2; 
+usage() if @ARGV != 2 || $help; 
+
 my ($rule, $file) = @ARGV;
 unless (-f $file) {
     say "File doesn't exist: $file";
@@ -32,7 +30,6 @@ my $processor = MARC::Moose::Lint::Processor->new(
     verbose => $verbose,
 );
 $processor->run();
-
 
 
 sub usage {
@@ -48,18 +45,31 @@ __END__
 
  marcmoose-lint --help
  marcmoose-lint unimarc.rules marc.iso
+ marcmoose-lint --noverbose marc21.rules marc.iso
 
 =head1 DESCRIPTION
 
-Command line utility to 'lint' biblio records based on a validation rules file.
-Biblio records file must be in ISO2709 format (UTF-8). Validation rules file is
-in the format described in L<MARC::Moose::Lint::Checker>. At the end of the
-process, 3 files are generated: C<marc.iso.ok>, a ISO2709 file containing
-biblio records that have passed the validation rules, C<marc.iso.bad>, a
-ISO2709 file which contains records that have failed the validation, and
-C<marc.iso.log> a text file containing a text version of the biblio records
-that have failed the validation, followed by a description of the violated
-rules.
+Command line utility to I<lint> biblio records based on a validation rules file.
+Biblio records file must be in ISO2709 format (UTF-8 only). Validation rules
+file is in the format described in L<MARC::Moose::Lint::Checker>. At the end of
+the process, handled by L<MARC::Moose::Lint::Processor>, 3 files are generated:
+F<marc.iso.ok>, an ISO2709 file containing biblio records complying with
+validation rules, F<marc.iso.bad>, an ISO2709 file which contains records
+violating validation rules, and F<marc.iso.log> a text file containing a text
+version of the biblio records that have failed the validation, followed by a
+description of the violated rules.
+
+B<TIP:> You can get quick statistics on errors frequency with this Perl
+On-Liner: 
+
+ perl -ne 'if (/^([0-9]{3})[()0-9]*: *(.*)$/) { print "$1: $2\n";}' marc.iso.log | sort | uniq -c
+
+=head1 SEE ALSO
+
+=for :list
+* L<MARC::Moose>
+* L<MARC::Moose::Lint::Checker>
+* L<MARC::Moose::Lint::Processor>
 
 =cut
 

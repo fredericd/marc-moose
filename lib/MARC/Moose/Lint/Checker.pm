@@ -42,55 +42,59 @@ sub BUILD {
             next;
         }
         #say;
-        if (@parts < 4 && @parts != 1) {
-            say;
-            say "Line $linenumber: Invalid rule: must contain at least four parts: $_";
-            exit;
-        }
-        my ($tag, $ind1, $ind2) = (shift @parts, shift @parts, shift @parts);
-        my @rule = ();
-        if ( $tag !~ /^[0-9]{3}[_|\+]*/ ) {
+        my $tag = shift @parts;
+        if ( $tag !~ /^([0-9]{3})[_|\+]*/ ) {
             say;
             say "Line $linenumber: Invalid tag portion";
             exit;
         }
-
-        $tag =~ /([0-9]{3})/;
-        push @rule, $1;
+        my $tag_digit = $1;
+        my $is_control_field = $tag_digit lt '010';
+        if ( (!$is_control_field && @parts < 3) || ($is_control_field && @parts > 1) ) {
+            say;
+            say "Line $linenumber: Invalid rule: wrong number of parts";
+            exit;
+        }
+        my @rule = ();
+        push @rule, $tag_digit;
         push @rule, $tag =~ /_/ ? 1 : 0;
         push @rule, $tag =~ /\+/ ? 1 : 0;
 
-        push @rule, [$ind1, $ind2];
-
-        my @subf = map {
-            my @letter;
-            s/^ *//;
-            s/ *$//;
-            my ($letter, $table, $regexp) = ('', 0, '');
-            if ( /^(.*)\@(.*) +(.*)$/ ) {
-                $letter = $1;
-                $table = $2;
-                $regexp = $3;
-            }
-            elsif ( /^(.*) +(.*)$/ ) {
-                $letter = $1;
-                $regexp = $2;
-            }
-            else {
-                $letter = $_;
-            }
-            my $mandatory = $letter =~ /_/ ? 1 : 0;
-            $letter =~ s/_//g;
-            my $repeatable = $letter =~ /\+/ ? 1 : 0;
-            $letter =~ s/\+//g;
-            push @letter, $letter;
-            push @letter, $mandatory;
-            push @letter, $repeatable;
-            push @letter, $table;
-            push @letter, $regexp if $regexp;
-            \@letter;
-        } @parts;
-        push @rule, \@subf;
+        if ( $is_control_field ) {
+            push @rule, shift @parts;
+        }
+        else {
+            push @rule, [ shift @parts, shift @parts ];
+            my @subf = map {
+                my @letter;
+                s/^ *//;
+                s/ *$//;
+                my ($letter, $table, $regexp) = ('', 0, '');
+                if ( /^(.*)\@(.*) +(.*)$/ ) {
+                    $letter = $1;
+                    $table = $2;
+                    $regexp = $3;
+                }
+                elsif ( /^(.*) +(.*)$/ ) {
+                    $letter = $1;
+                    $regexp = $2;
+                }
+                else {
+                    $letter = $_;
+                }
+                my $mandatory = $letter =~ /_/ ? 1 : 0;
+                $letter =~ s/_//g;
+                my $repeatable = $letter =~ /\+/ ? 1 : 0;
+                $letter =~ s/\+//g;
+                push @letter, $letter;
+                push @letter, $mandatory;
+                push @letter, $repeatable;
+                push @letter, $table;
+                push @letter, $regexp if $regexp;
+                \@letter;
+            } @parts;
+            push @rule, \@subf;
+        }
         #say Dump(\@rule);
 
         push @rules, \@rule;
@@ -141,8 +145,8 @@ sub check {
         push @ret, join('', @text);
     };
     for my $rule (@{$self->rules}) {
-        my ($mandatory, $repeatable, $ind, $subf);
-        ($tag, $mandatory, $repeatable, $ind, $subf) = @$rule;
+        my ($mandatory, $repeatable);
+        ($tag, $mandatory, $repeatable) = @$rule;
         @fields = $record->field($tag);
         unless (@fields) {
             push @ret, "$tag: missing mandatory field" if $mandatory;
@@ -151,14 +155,29 @@ sub check {
         push @ret, "$tag: non-repeatable field"  if !$repeatable && @fields > 1;
 
         $i_field = 1;
-        for my $field (@fields) {
-            if ( ref($field) eq 'MARC::Moose::Field::Std' ) {
+        my $is_control_field = $tag lt '010';
+        if ( $tag lt '010' ) { # Control field
+            my $regexp;
+            (undef, undef, undef, $regexp) = @$rule;
+            if ( $regexp ) {
+                for my $field (@fields) {
+                    $append->("invalid value, which does't match /$regexp/")
+                        if $field->value !~ /$regexp/; 
+                    $i_field++;
+                }
+            }
+        }
+        else {
+            my ($ind, $subf);
+            (undef, undef, undef, $ind, $subf) = @$rule;
+            for my $field (@fields) {
+                next if ref($field) ne 'MARC::Moose::Field::Std';
                 for (my $i=1; $i <=2 ; $i++) {
                     my $value = $i == 1 ? $field->ind1 : $field->ind2;
                     my $regexp = $ind->[$i-1];
                     $regexp =~ s/#/ /g;
                     $regexp =~ s/,/|/g;
-                    $append->("invalid indicator $i, must be " . $ind->[$i-1])
+                    $append->("invalid indicator $i '$value' , must be " . $ind->[$i-1])
                         if $value !~ /[$regexp]/;
                 }
                 # Search subfields which shouldn't be there
@@ -199,9 +218,8 @@ sub check {
                         }
                     }
                 }
+                $i_field++;
             }
-
-            $i_field++;
         }
     }
 
@@ -234,9 +252,9 @@ __PACKAGE__->meta->make_immutable;
 =head1 VALIDATION RULES
 
 Validation rules are defined in a textual form. The file is composed of two
-parts: (1) field rules, (2) validation tables.
+parts: (1) B<field rules>, (2) B<validation tables>.
 
-(1) Field rules define validation rules for each tag. A blank line separates
+(1) B<Field rules> define validation rules for each tag. A blank line separates
 tags. For example:
 
  102+
@@ -246,19 +264,24 @@ tags. For example:
  2+
 
 Line 1 contains the field tag. If a + is present, the field is repeatable. If a
-_ is present, the field is mandatory. Line 2 and 3 contains a regular
-expression on which indicators 1 and 2 are validated. # means a blank
-indicator. Line 4 and the following define rules for validating subfields. A
-first part contains subfield's letters, and + (repeatable) and/or _ (mandatory),
-followed by an optional validation table name begining with @. A blank
-separates the first part from the second part. The second part contains a
-regular expression on which subfield content is validated.
+_ is present, the field is mandatory. For I<control fields> (tag under 010), an
+optional second line can contain a regular expression on which validating field
+content. For <standard fields>, line 2 and 3 contains a regular expression on
+which indicators 1 and 2 are validated. # means a blank indicator. Line 4 and
+the following define rules for validating subfields. A first part contains
+subfield's letters, and + (repeatable) and/or _ (mandatory), followed by an
+optional validation table name begining with @. A blank separates the first
+part from the second part. The second part contains a regular expression on
+which subfield content is validated.
 
-(2) Validation tables part of the file allow to define several validation
-tables. The table name begins with ==== TABLE NAME in uppercase. Then each line
-is a code in the validation table.
+(2) B<Validation tables> part of the file allow to define several validation
+tables. The table name begins with C<==== TABLE NAME> in uppercase. Then each
+line is a code in the validation table.
 
 This is for example, a simplified standard UNIMARC validation rules file:
+
+ 005
+ \d{14}\.\d
 
  100_
  #

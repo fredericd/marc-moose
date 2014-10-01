@@ -49,7 +49,7 @@ finished its stream of date by a footer.
 =head2 format
 
 Returns something (a string, another object) containing a representation of a
-Marc record.
+MARC record.
 
   # $formater type is Marc::Formater subclass
   # $record type Marc::Record or any subclass
@@ -58,11 +58,11 @@ Marc record.
 =head1 SEE ALSO
 
 =for :list
-
 * L<MARC::Moose>
 * L<MARC::Moose::Formater::Iso2709>
 * L<MARC::Moose::Formater::Marcxml>
 * L<MARC::Moose::Formater::Text>
 * L<MARC::Moose::Formater::Yaml>
 * L<MARC::Moose::Formater::UnimarcToMarc21>
+* L<MARC::Moose::Lint::Processor>
 
