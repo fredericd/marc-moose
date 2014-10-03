@@ -57,50 +57,34 @@ sub BUILD {
             say "Line $linenumber: Invalid rule: wrong number of parts";
             exit;
         }
-        my @rule = ();
-        push @rule, $tag_digit;
-        push @rule, $tag =~ /_/ ? 1 : 0;
-        push @rule, $tag =~ /\+/ ? 1 : 0;
+        my @rule = (
+            $tag_digit,
+            $tag =~ /_/ ? 1 : 0,
+            $tag =~ /\+/ ? 1 : 0
+        );
 
         if ( $is_control_field ) {
             push @rule, shift @parts;
         }
         else {
-            push @rule, [ shift @parts, shift @parts ];
-            my @subf = map {
-                my @letter;
-                s/^ *//;
-                s/ *$//;
-                my ($letter, $table, $regexp) = ('', 0, '');
-                if ( /^(.*)\@(.*) +(.*)$/ ) {
-                    $letter = $1;
-                    $table = $2;
-                    $regexp = $3;
-                }
-                elsif ( /^(.*) +(.*)$/ ) {
-                    $letter = $1;
-                    $regexp = $2;
-                }
-                else {
-                    $letter = $_;
-                }
+            push @rule, [ shift @parts, shift @parts ],
+            [ map {
+                s/^ *//; s/ *$//;
+                my ($letter, $table, $regexp) =
+                    /^([a-zA-Z0-9+_]+)\@([A-Z]*) *(.*)$/  ? ($1, $2, $3) :
+                    /^([a-zA-Z0-9]+) +(.*)$/        ? ($1, 0, $2)  : ($_, 0, '');
                 my $mandatory = $letter =~ /_/ ? 1 : 0;
                 $letter =~ s/_//g;
                 my $repeatable = $letter =~ /\+/ ? 1 : 0;
                 $letter =~ s/\+//g;
-                push @letter, $letter;
-                push @letter, $mandatory;
-                push @letter, $repeatable;
-                push @letter, $table;
+                my @letter;
+                push @letter, $letter, $mandatory, $repeatable, $table;
                 push @letter, $regexp if $regexp;
                 \@letter;
-            } @parts;
-            push @rule, \@subf;
+            } @parts ];
         }
-        #say Dump(\@rule);
         $rules{$tag_digit} = \@rule;
 
-        push @rules, \@rule;
         @parts = ();
     }
     $self->rules( \%rules );
@@ -137,7 +121,7 @@ the reasons why the record doesn't comply with validation rules.
 sub check {
     my ($self, $record) = @_;
 
-    my @ret;
+    my @warnings;
     my $tag;        # Current tag
     my @fields;     # Array of fields;
     my $i_field;    # Indice in the current array of fields
@@ -145,7 +129,7 @@ sub check {
         my @text = ($tag);
         push @text, "($i_field)" if @fields > 1;
         push @text, ": ", shift;
-        push @ret, join('', @text);
+        push @warnings, join('', @text);
     };
     my $fields_by_tag;
     for my $field ( @{$record->fields} ) {
@@ -157,10 +141,13 @@ sub check {
     my $rules = $self->rules;
     {
         my @unknown;
-        for my $tag ( keys %$fields_by_tag ) {
+        for $tag ( keys %$fields_by_tag ) {
             push @unknown, $tag unless $rules->{$tag};
         }
-        push @ret, "$_: Unknown tag" for @unknown;
+        for (@unknown) {
+            $tag = $_;
+            $append->('Unknown tag');
+        }
     }
 
     for my $rule ( values %$rules ) {
@@ -170,11 +157,11 @@ sub check {
         ($tag, $mandatory, $repeatable) = @$rule;
         my $fields = $fields_by_tag->{$tag};
         unless ($fields) {
-            push @ret, "$tag: missing mandatory field" if $mandatory;
+            $append->("missing mandatory field") if $mandatory;
             next;
         }
         @fields = @$fields;
-        push @ret, "$tag: non-repeatable field"  if !$repeatable && @fields > 1;
+        $append->("non-repeatable field")  if !$repeatable && @fields > 1;
 
         $i_field = 1;
 
@@ -209,6 +196,7 @@ sub check {
             my @forbidden;
             for (@{$field->subf}) {
                 my ($letter, $value) = @$_;
+                next unless $letter;
                 next if grep { $_->[0] =~ $letter } @$subf;
                 push @forbidden, $letter;
             }
@@ -222,24 +210,22 @@ sub check {
                     $append->("\$$letter mandatory subfield is missing")
                         if @values == 0 && $mand;
                     $append->("\$$letter is repeated") if @values > 1 && !$repet;
-                    if ($regexp) {
-                        my $i = 1;
-                        my $multi = @values > 1;
-                        for my $value (@values) {
-                            if ( $table && ! $self->table->{$table}->{$value} ) {
-                                $append->(
-                                    "subfield \$$letter" .
-                                    ($multi ? "($i)" : "") .
-                                    " contains '$value' not in $table table");
-                            }
-                            if ( $value !~ /$regexp/ ) {
-                                $append->(
-                                    "invalid subfield \$$letter" .
-                                    ($multi ? "($i)" : "") .
-                                    ", should be $regexp");
-                            }
-                            $i++;
+                    my $i = 1;
+                    my $multi = @values > 1;
+                    for my $value (@values) {
+                        if ( $table && ! $self->table->{$table}->{$value} ) {
+                            $append->(
+                                "subfield \$$letter" .
+                                ($multi ? "($i)" : "") .
+                                " contains '$value' not in $table table");
                         }
+                        if ( $regexp && $value !~ /$regexp/ ) {
+                            $append->(
+                                "invalid subfield \$$letter" .
+                                ($multi ? "($i)" : "") .
+                                ", should be $regexp");
+                        }
+                        $i++;
                     }
                 }
             }
@@ -247,7 +233,7 @@ sub check {
         }
     }
 
-    return @ret;
+    return @warnings;
 }
 
 
