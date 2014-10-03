@@ -259,6 +259,72 @@ __PACKAGE__->meta->make_immutable;
      }
  }
 
+=head1 DESCRIPTION
+
+A MARC biblio record, MARC21, UNIMARC, whatever, can be validated against
+rules. Rules check various conditions:
+
+=over
+
+=item *
+
+B<Unknown tag> - If a field is present in a record but is not specified by its
+tag in a validation rule, a warning is emitted saying that this field has an
+I<Unknown tag>. This way all tags which are not specifically defined in
+validation rules are identified.
+
+B<Unknown letter> - If a subfield is present in a field but is not specified by
+its letter in a validation rule, a warning is emitted saying that this subfield
+has an I<Unknown letter>. This way all subfields which are not specifically
+defined in validation rules are identified.
+
+=item *
+
+B<Mandatory field> - When a validation rule defines that a field is mandatory,
+if this field is not found in a record, a warning is emitted saying that this
+field is I<missing>.
+
+B<Mandatory subfield> - When a validation rule defines that a subfield is
+mandatory, if this subfield is not found in a field, a warning is emitted saying
+that this subfield is I<missing>.
+
+=item *
+
+B<Repeatable field> - When a validation rule specify that a field is not
+repeatable, if this field is repeated in a record, a warning is emitted saying
+that this field is L<non repeatable>.
+
+=item *
+
+B<Repeatable subfield> - When a validation rule specify that a subfield is not
+repeatable, if this subfield is repeated in a field, a warning is emitted
+saying that this subfield is L<non repeatable>.
+
+=item *
+
+B<Indicator values> - Authorised values for indicators 1 and 2 are specified in
+validation rule. When a field uses another value, a warning is emitted saying
+I<invalid indicator value>.
+
+=items *
+
+B<Field content> - The content of a field, control field value, or subfield
+value, can be tested on a regular expression. This way it's possible to check
+that a field comply to a specific format. C<.{3}> will accept values with 3
+characters length. C<[0-9]{8}> will accept digit-only value with 8 digits. And
+this regular expression will validate UNIMARC 100 code field:
+
+ ^[0-9]{8}[a-ku][0-9 ]{8}[abcdeklu ]{3}[a-huyz][01 ][a-z]{3}[a-cy][01|02|03|04|05|06|07|08|09|10|11|50]{2}
+
+=item *
+
+B<Validation tables> - Validation tables can be specified. For example, table
+of ISO language codes. Field/subfield content can be validated against a table
+in order to identify unauthorised values. When such a value is found, a warning
+is emitted saying that I<this value> is not in I<this table>.
+
+=back
+
 =head1 VALIDATION RULES
 
 Validation rules are defined in a textual form. The file is composed of two
