@@ -1,5 +1,5 @@
 package MARC::Moose::Lint::Processor;
-# ABSTRACT: Processor to lint iso2709 file
+# ABSTRACT: Processor to lint a biblio records file
 
 use Moose;
 use Modern::Perl;
@@ -76,7 +76,7 @@ has writer_ok => (is => 'rw', isa => 'MARC::Moose::Writer' );
 
 =attr writer_bad
 
-A L<MARC::Moose::Writer> object in which unvalid biblio records are written.
+A L<MARC::Moose::Writer> object in which invalid biblio records are written.
 
 =cut
 has writer_bad => (is => 'rw', isa => 'MARC::Moose::Writer' );
@@ -84,7 +84,7 @@ has writer_bad => (is => 'rw', isa => 'MARC::Moose::Writer' );
 
 =attr writer_bad
 
-A L<IO::File> file handle which is used to write unvalid biblio records with
+A L<IO::File> file handle which is used to write invalid biblio records with
 generated warnings.
 
 =cut
@@ -200,5 +200,6 @@ A more specific construction is also possible:
 
 =for :list
 * L<MARC::Moose>
-* L<MARC::Moose::Lint::Checker
+* L<MARC::Moose::Lint::Checker>
+* L<MARC::Moose::Lint::Checker::RulesFile>
 

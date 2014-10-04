@@ -2,8 +2,6 @@ package MARC::Moose::Lint::Checker;
 # ABSTRACT: A base-class to 'lint' biblio record
 
 use Moose;
-use Modern::Perl;
-use YAML;
 
 
 =method check( I<record> )
