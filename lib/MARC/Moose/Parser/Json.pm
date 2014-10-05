@@ -36,6 +36,7 @@ override 'parse' => sub {
     my $record = MARC::Moose::Record->new(
         leader => $json->{leader},
         fields => \@fields );
+    $record->lint($self->lint) if $record->lint;
     return $record;
 };
 

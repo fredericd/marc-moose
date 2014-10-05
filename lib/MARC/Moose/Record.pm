@@ -21,7 +21,11 @@ use MARC::Moose::Parser::Json;
 
 with 'MARC::Moose::Lint::Checker';
 
-=attr linter
+=attr lint
+
+A L<MARC::Moose::Lint::Checker> object which allow to check record based on a
+set of validation rules. Generally, the 'lint' attribute of record is inherited
+from the reader used to get the record.
 
 =cut
 has lint => (

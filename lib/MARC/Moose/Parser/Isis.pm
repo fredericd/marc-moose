@@ -78,6 +78,7 @@ override 'parse' => sub {
         }
     }
 
+    $record->lint($self->lint) if $self->lint;
     return $record;
 };
 

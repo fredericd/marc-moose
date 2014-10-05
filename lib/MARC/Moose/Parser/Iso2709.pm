@@ -2,8 +2,7 @@ package MARC::Moose::Parser::Iso2709;
 # ABSTRACT: Parser for ISO2709 records
 
 use Moose;
-use 5.010;
-use utf8;
+use Modern::Perl;
 require bytes;
 
 extends 'MARC::Moose::Parser';
@@ -66,6 +65,7 @@ override 'parse' => sub {
         }
     }
     $record->fields( \@fields );
+    $record->lint($self->lint) if $self->lint;
     return $record;
 };
 

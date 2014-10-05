@@ -24,8 +24,8 @@ processor object is created with this attribute, other attributes are
 automatically constructed: C<reader> as L<MARC::Moose::Reader::File::Iso2709>
 object reading the file, C<writer_ok> and C<writer_bad> as
 L<MARC::Moose::Writer> object with an ISO2709 formater writing to files named
-'file.ok' and 'file.bad', and C<fh_log> as a L<IO::File>, writing a text file
-named 'file.log'.
+F<file.ok> and F<file.bad>, and C<fh_log> as a L<IO::File>, writing a text file
+named F<file.log>.
 
 =cut
 has file => (
@@ -35,7 +35,7 @@ has file => (
         my ($self, $file) = @_;
         $self->reader( MARC::Moose::Reader::File::Iso2709->new(
             file => $file,
-            lint => $self->lint ) );
+            parser => MARC::Moose::Parser::Iso2709->new( lint => $self->lint ) ) );
         $self->writer_ok( MARC::Moose::Writer->new(
             formater => MARC::Moose::Formater::Iso2709->new(),
             fh => IO::File->new("$file.ok", ">:encoding(utf8)")
@@ -171,11 +171,11 @@ __PACKAGE__->meta->make_immutable;
  };
  $processor->run();
 
-The above script validates an ISO2709 file named C<biblio.mrc> on a rules file
-named C<unimarc.rules>. As a result, 3 files are created: (1) C<biblio.mrc.ok>,
-an ISO2709 containing biblio records complying to the rules, (2)
-C<biblio.mrc.bad> containing biblios violating the rules, and (3)
-C<biblio.mrc.log> containing a textual representation of biblio records
+The above script validates an ISO2709 file named F<biblio.mrc> on a rules file
+named F<unimarc.rules>. As a result, 3 files are created: (1)
+F<biblio.mrc.ok>, an ISO2709 containing biblio records complying to the rules,
+(2) F<biblio.mrc.bad> containing biblios violating the rules, and (3)
+F<biblio.mrc.log> containing a textual representation of biblio records
 violating the rules + a description of violated rules.
 
 A more specific construction is also possible:
@@ -183,7 +183,8 @@ A more specific construction is also possible:
  my $lint => MARC::Moose::Lint::Checker::RulesFile->new( file => 'marc21.rules' );
  my $processor = MARC::Moose::Lint::Processor->new(
      reader => MARC::Moose::Reader::File::Marcxml->new(
-         file => 'biblio.xml', lint => $lint ),
+         file => 'biblio.xml',
+         parser => MARC::Moose::Parser::Marcxml->new( lint => $lint ),
      writer_ok => MARC::Moose::Writer->new(
          formater => MARC::Moose::Formater::Marcxml->new(),
          fh => IO::File->new('ok.xml', '>:encoding(utf8')

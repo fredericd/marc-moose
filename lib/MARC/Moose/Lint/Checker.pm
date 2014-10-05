@@ -9,8 +9,8 @@ use Moose::Role;
 This method checks a biblio record, based on the current 'lint' object. The
 biblio record is a L<MARC::Moose::Record> object. An array of validation
 errors/warnings is returned. Those errors are just plain text explanation on
-the reasons why the record doesn't comply with validation rules.This role could
-be applied directly to L<MARC::Moose::Record> object or to
+the reasons why the record doesn't comply with validation rules. This role
+could be applied directly to a L<MARC::Moose::Record> object or to
 L<MARC::Moose::Reader> object.
 
 =cut
@@ -25,7 +25,9 @@ sub check {
 =head1 DESCRIPTION
 
 A MARC biblio record, MARC21, UNIMARC, whatever, can be validated against
-rules. By extending this class, you defines your own validation rules.
+rules. By extending this class, you defines your own validation rules. Then the
+'lint' object can be given to a L<MARC::Moose::Record> or a
+L<MARC::Moose::Reader>
 
 =head1 SYNOPSYS
 
@@ -51,11 +53,12 @@ rules. By extending this class, you defines your own validation rules.
  package Main;
 
  use MARC::Moose::Reader::File::Iso2709;
+ use MARC::Moose::Parser::Iso2709;
 
- # Dump all biblio records without valid PPN
+ # Dump as text all biblio records without valid PPN
  my $reader = $MARC::Moose::Reader::File::Iso2709(
     file => 'biblio.mrc',
-    lint => LintPPN->new() );
+    parser => MARC::Moose::Parser::Iso2709->new( lint => LintPPN->new() ));
  while ( my $record = $reader->read() ) {
     if ( my @warnings = $record->check() ) {
         say $record->as('Text');

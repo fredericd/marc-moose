@@ -9,7 +9,12 @@ use MARC::Moose::Parser::Iso2709;
 with 'MARC::Moose::Reader::File';
 
 
-has '+parser' => ( default => sub { MARC::Moose::Parser::Iso2709->new() } );
+has '+parser' => (
+    default => sub {
+        my $parser = MARC::Moose::Parser::Iso2709->new();
+        return $parser;
+    }
+);
 
 
 sub read {
@@ -27,10 +32,7 @@ sub read {
     # remove illegal garbage that sometimes occurs between records
     $raw =~ s/^[ \x00\x0a\x0d\x1a]+//;
 
-    my $record = $self->parser->parse( $raw );
-    return unless $record;
-    $record->lint( $self->lint ) if $self->lint;
-    return $record;
+    $self->parser->parse( $raw );
 }
 
 

@@ -23,7 +23,9 @@ override 'parse' => sub {
 
     #print "\nRAW: $raw\n";
     return unless $raw;
-    return Load( $raw );
+    my $record = Load( $raw );
+    $record->lint($self->lint) if $self->lint;
+    return $record;
 };
 
 __PACKAGE__->meta->make_immutable;

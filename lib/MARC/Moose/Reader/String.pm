@@ -5,14 +5,16 @@ use Moose::Role;
 
 with 'MARC::Moose::Reader';
 
+=attr string
+
+The string containing the set of records to parser.
+
+=cut
 has string => ( is => 'rw', isa => 'Str' );
 
 
 1;
 
-=attr string
-
-The string containing the set of records to parser.
 
 =head1 SEE ALSO
 

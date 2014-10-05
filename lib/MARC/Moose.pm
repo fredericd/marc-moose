@@ -1,7 +1,7 @@
 package MARC::Moose;
 # ABSTRACT: Moose based MARC records set of tools
 
-use Moose 1.00;
+use Moose;
 
 use Carp;
 

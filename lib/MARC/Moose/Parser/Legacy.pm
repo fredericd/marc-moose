@@ -28,6 +28,7 @@ override 'parse' => sub {
                 subf => [ $field->subfields() ] )
     }
     $record->fields( \@fields );
+    $record->lint($self->lint) if $self->lint;
     return $record;
 };
 
