@@ -37,7 +37,10 @@ sub read {
     # End of file
     return unless $raw =~ /<record>/;
 
-    return $self->parser->parse( $raw );
+    my $record = $self->parser->parse( $raw );
+    return unless($record);
+    $record->lint($self->lint) if $self->lint;
+    return $record;
 }
 
 __PACKAGE__->meta->make_immutable;

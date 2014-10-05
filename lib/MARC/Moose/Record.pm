@@ -3,6 +3,7 @@ package MARC::Moose::Record;
 
 use Moose;
 
+use Modern::Perl;
 use Carp;
 use MARC::Moose::Formater::Iso2709;
 use MARC::Moose::Formater::Json;
@@ -18,6 +19,14 @@ use MARC::Moose::Parser::Legacy;
 use MARC::Moose::Parser::Yaml;
 use MARC::Moose::Parser::Json;
 
+with 'MARC::Moose::Lint::Checker';
+
+=attr linter
+
+=cut
+has lint => (
+    is => 'rw',
+);
 
 =attr leader
 
@@ -241,15 +250,7 @@ sub new_from {
 
 sub check {
     my $self = shift;
-
-    for my $field ( @{$self->fields} ) {
-        for my $subf ( @{$field->subf} ) {
-            if ( @$subf != 2 ) {
-                print "NON !!!\n";
-                exit;
-            }
-        }
-    }
+    $self->lint ? $self->lint->check($self) : ();
 }
 
 

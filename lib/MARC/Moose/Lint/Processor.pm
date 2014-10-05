@@ -9,7 +9,7 @@ use MARC::Moose::Lint::Checker;
 
 extends 'AnyEvent::Processor';
 
-=attr lint
+=attr linter
 
 A L<MARC::Moose::Lint::Checker> to be used to validate biblio record.
 
@@ -34,7 +34,8 @@ has file => (
     trigger => sub {
         my ($self, $file) = @_;
         $self->reader( MARC::Moose::Reader::File::Iso2709->new(
-            file => $file ) );
+            file => $file,
+            lint => $self->lint ) );
         $self->writer_ok( MARC::Moose::Writer->new(
             formater => MARC::Moose::Formater::Iso2709->new(),
             fh => IO::File->new("$file.ok", ">:encoding(utf8)")
@@ -103,7 +104,7 @@ sub process {
 
     $record = $self->cleaner->format($record) if $self->cleaner;
 
-    if ( my @result = $self->lint->check($record) ) {
+    if ( my @result = $record->check() ) {
         $self->writer_bad->write($record);
         my $rectext = $record->as('Text');
         chop $rectext;
@@ -179,20 +180,21 @@ violating the rules + a description of violated rules.
 
 A more specific construction is also possible:
 
+ my $lint => MARC::Moose::Lint::Checker::RulesFile->new( file => 'marc21.rules' );
  my $processor = MARC::Moose::Lint::Processor->new(
-     lint => MARC::Moose::Lint::Checker::RulesFile->new( file => 'unimarc.rules',
-     reader => MARC::Moose::Reader::File::Marcxml->new('biblio.xml'),
+     reader => MARC::Moose::Reader::File::Marcxml->new(
+         file => 'biblio.xml', lint => $lint ),
      writer_ok => MARC::Moose::Writer->new(
          formater => MARC::Moose::Formater::Marcxml->new(),
          fh => IO::File->new('ok.xml', '>:encoding(utf8')
      ),
      writer_bad => MARC::Moose::Writer->new(
          formater => MARC::Moose::Formater::Marcxml->new(),
-         fh => IO::File->new('bad.xml', '>:encoding(utf8')
+         fh => IO::File->new('bad.xml', '>:encoding(utf8'))
      ),
-     fh_log => IO::File->new('warnings.log', '>:encoding(utf8'),
+     fh_log => IO::File->new('warnings.log', '>:encoding(utf8')),
      verbose => 1,
- };
+ );
  $processor->run();
 
 
