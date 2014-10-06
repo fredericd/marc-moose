@@ -132,7 +132,7 @@ sub check {
         push @text, ": ", shift;
         push @warnings, join('', @text);
     };
-    my $fields_by_tag;
+    my $fields_by_tag = { '000' => [ $record->leader ] };
     for my $field ( @{$record->fields} ) {
         $fields_by_tag->{$field->tag} ||= [];
         push @{$fields_by_tag->{$field->tag}}, $field;
@@ -166,15 +166,21 @@ sub check {
 
         $i_field = 1;
 
-        # Control field
+        # Control field & leader
         if ( $tag lt '010' ) {
             my $regexp;
             (undef, undef, undef, $regexp) = @$rule;
             if ( $regexp ) {
-                for my $field (@fields) {
-                    $append->("invalid value, doesn't match /$regexp/")
-                        if $field->value !~ /$regexp/;
-                    $i_field++;
+                if ( $tag eq '000') {
+                    $append->("invalid leader, doesn't match /$regexp/")
+                        if $record->leader !~ /$regexp/;
+                }
+                else {
+                    for my $field (@fields) {
+                        $append->("invalid value, doesn't match /$regexp/")
+                            if $field->value !~ /$regexp/;
+                        $i_field++;
+                    }
                 }
             }
             next;
@@ -234,7 +240,7 @@ sub check {
         }
     }
 
-    return @warnings;
+    sort @warnings;
 }
 
 
@@ -307,7 +313,7 @@ B<Indicator values> - Authorised values for indicators 1 and 2 are specified in
 validation rule. When a field uses another value, a warning is emitted saying
 I<invalid indicator value>.
 
-=items *
+=item *
 
 B<Field content> - The content of a field, control field value, or subfield
 value, can be tested on a regular expression. This way it's possible to check
@@ -331,8 +337,12 @@ is emitted saying that I<this value> is not in I<this table>.
 Validation rules are defined in a textual form. The file is composed of two
 parts: (1) B<field rules>, (2) B<validation tables>.
 
-(1) B<Field rules> define validation rules for each tag. A blank line separates
-tags. For example:
+=over
+
+=item B<(1) Field rules>
+
+Define validation rules for each tag. A blank line separates tags. For
+example:
 
  102+
  #
@@ -351,11 +361,20 @@ optional validation table name begining with @. A blank separates the first
 part from the second part. The second part contains a regular expression on
 which subfield content is validated.
 
-(2) B<Validation tables> part of the file allow to define several validation
-tables. The table name begins with C<==== TABLE NAME> in uppercase. Then each
-line is a code in the validation table.
+=item B<(2) Validation tables>
+
+This part of the file allows to define several validation tables. The table
+name begins with C<==== TABLE NAME> in uppercase. Then each line is a code in
+the validation table.
+
+=back
 
 This is for example, a simplified standard UNIMARC validation rules file:
+
+ 000
+ .{5}[cdnop][abcdefgijklmr][aimsc][ 012]
+
+ 001_
 
  005
  \d{14}\.\d

@@ -11,7 +11,7 @@ biblio record is a L<MARC::Moose::Record> object. An array of validation
 errors/warnings is returned. Those errors are just plain text explanation on
 the reasons why the record doesn't comply with validation rules. This role
 could be applied directly to a L<MARC::Moose::Record> object or to
-L<MARC::Moose::Reader> object.
+L<MARC::Moose::Parser> object.
 
 =cut
 sub check {
