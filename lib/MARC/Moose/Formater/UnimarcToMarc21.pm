@@ -169,6 +169,12 @@ push @unchanged, [317, 561],
                  [337, 538],
                  [686, '084'];
 
+# Tags with non-filing indicator (pos 1 or 2)
+my $nonfiling_tags = [
+    [ qw/130 630 730 740 830/ ],
+    [ qw/240 242 243 245 440 830/ ],
+];
+
 # NSB/NSE characters
 my $ns_characters = [
     [ "\x08", "\x09" ],
@@ -465,7 +471,8 @@ override 'format' => sub {
                         push @sf, [ n => $value ];
                     }
                     else {
-                        $sf[-1]->[1] .= ". $value";
+                        #$sf[-1]->[1] .= ". $value";
+                        push @sf, [ n => $value ];
                     }
                 }
                 when ( 'i' ) {
@@ -496,21 +503,6 @@ override 'format' => sub {
             }
             default { $ind1 = 1; }
         }
-        # Calculate second indicator based on UNIMARC NSB/NSE characters
-        unless ( $a_index == -1 ) {
-            my $a = $sf[$a_index][1];
-            for my $ns (@$ns_characters) {
-                my ($nsb, $nse) = @$ns;
-                next if $a !~ /^$nsb(.*)$nse/;
-                my $len = length($1);
-                $ind2 = $len  if $len < 10;
-                $a =~ s/$nsb//g;
-                $a =~ s/$nse//g;
-                $sf[$a_index][1] = $a;
-                last;
-            }
-        }
-
         $record->append( MARC::Moose::Field::Std->new(
             tag => '245', ind1 => $ind1, ind2 => $ind2,
             subf => \@sf ) );
@@ -1115,9 +1107,50 @@ override 'format' => sub {
         }
     }
 
+    # Populate non-filing indicator based on UNIMARC NSB/NSE
+    {
+        my $first = 1;
+        for my $tags (@$nonfiling_tags) {
+            for my $tag (@$tags) {
+                for my $field ($record->field($tag)) {
+                    for (@{$field->subf}) {
+                        next if $_->[0] ne 'a';
+                        # Found Main title
+                        my $title = $_->[1];
+                        next unless $title;
+                        for my $ns (@$ns_characters) {
+                            my ($nsb, $nse) = @$ns;
+                            next if $title !~ /^$nsb(.*)$nse(.)/;
+                            my $len = length($1);
+                            $len++ if $2 eq ' ';
+                            $len = 0 if $len >= 10;
+                            $title =~ s/$nsb//g;
+                            $title =~ s/$nse//g;
+                            $_->[1] = $title;
+                            if ($first) { $field->ind1($len); }
+                            else        { $field->ind2($len); }
+                            last;
+                        }
+                        last;
+                    }
+                }
+            }
+            $first = 0;
+        }
+    }
+
     # Some fields are kept, as they are: 856, 801, 9xx
     if ( my @fields = $unimarc->field('801|856|9..') ) {
         $record->append(@fields)
+    }
+
+    # Clean non-filing characters in all fields
+    for my $field (@{$record->fields}) {
+        next if $field->tag lt '010';
+        for (@{$field->subf} ) {
+            next if $_->[0] !~ /[a-z0-9]/;
+            $_->[1] =~ s/\x08|\x09//g;
+        }
     }
 
     return $record;

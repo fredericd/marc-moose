@@ -11,6 +11,7 @@ use MARC::Moose::Formater::Marcxml;
 use MARC::Moose::Formater::Text;
 use MARC::Moose::Formater::Yaml;
 use MARC::Moose::Formater::UnimarcToMarc21;
+use MARC::Moose::Formater::AuthorityUnimarcToMarc21;
 use MARC::Moose::Parser::Iso2709;
 use MARC::Moose::Parser::MarcxmlSax;
 use MARC::Moose::Parser::Legacy;
@@ -47,13 +48,14 @@ has fields => (
 
 # Les formater standards
 my $formater = {
-    iso2709         => MARC::Moose::Formater::Iso2709->new(),
-    json            => MARC::Moose::Formater::Json->new(),
-    legacy          => MARC::Moose::Formater::Legacy->new(),
-    marcxml         => MARC::Moose::Formater::Marcxml->new(),
-    text            => MARC::Moose::Formater::Text->new(),
-    yaml            => MARC::Moose::Formater::Yaml->new(),
-    unimarctomarc21 => MARC::Moose::Formater::UnimarcToMarc21->new(),
+    iso2709                  => MARC::Moose::Formater::Iso2709->new(),
+    json                     => MARC::Moose::Formater::Json->new(),
+    legacy                   => MARC::Moose::Formater::Legacy->new(),
+    marcxml                  => MARC::Moose::Formater::Marcxml->new(),
+    text                     => MARC::Moose::Formater::Text->new(),
+    yaml                     => MARC::Moose::Formater::Yaml->new(),
+    unimarctomarc21          => MARC::Moose::Formater::UnimarcToMarc21->new(),
+    authorityunimarctomarc21 => MARC::Moose::Formater::AuthorityUnimarcToMarc21->new(),
 };
 
 # Les parser standards
