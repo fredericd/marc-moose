@@ -7,6 +7,7 @@ use utf8;
 
 extends 'MARC::Moose::Formater';
 
+use List::Util qw/ first /;
 use MARC::Moose::Field::Control;
 use MARC::Moose::Field::Std;
 
@@ -180,6 +181,72 @@ my $ns_characters = [
     [ "\x08", "\x09" ],
     [ "\x88", "\x89" ]
 ];
+
+
+
+# Procedure 4 Title
+sub procedure_title {
+    my ($self, $subf) = @_;
+
+    my @sf;
+    my ($h_index) = (-1);
+    my @equivals = (
+        [ 'a', 'a' ],
+        [ 'j', 'f' ],
+        [ 'n', 'g' ],
+        [ 'h', 'n', '.' ],
+        [ 'k', 'f', '.' ],
+        [ 'l', 'k', '.' ],
+        [ 'm', 'l', '.' ],
+        [ 'q', 's', '.' ],
+        [ 'r', 'r', ',' ],
+        [ 's', 's', ',' ],
+        [ 't', 'o', ';' ],
+        [ 'u', 'r', ',' ],
+        [ 'x', 'x', ',' ],
+    );
+    for ( @$subf ) {
+        my ($letter, $value) = @$_;
+        if ( my $equival = first { $_->[0] eq $letter } @equivals ) {
+            my ($from, $to, $sep) = @$equival;
+            if ( $sep && @sf ) {
+                my $match = $sep;
+                $match = '\.' if $match eq '.';
+                if ( $sf[-1]->[0] !~ /$match$/ ) {
+                    $sf[-1]->[1] .= $sep;
+                }
+            }
+            push @sf, [ $to => $value ];
+        }
+        else {
+            given ($letter) {
+                when ( 'e' ) {
+                    next unless @sf; #FIXME warning required
+                    if ( $sf[-1][0] =~ /a|n|p/ ) {
+                        $sf[-1]->[1] .= ' :';
+                        push @sf, [ b => $value ];
+                    }
+                    else {
+                        $sf[-1]->[1] .= " : $value";
+                    }
+                }
+                when ( 'i' ) {
+                    if ( @sf ) {
+                        if ( $sf[-1]->[0] eq 'h' ) {
+                            $sf[-1]->[1] .= ','  if $sf[-1]->[1] !~ /,$/;
+                        }
+                        else {
+                            $sf[-1]->[1] .= '.';
+                        }
+                    }
+                    push @sf, [ p => $value ];
+                }
+            }
+        }
+    }
+
+    return \@sf;
+}
 
 
 override 'format' => sub {
@@ -811,6 +878,17 @@ override 'format' => sub {
             subf => [ [ a => join('  ', @a) ] ] ) );
     }
 
+    # 329 => 505
+    # This is French (CCfr) specific field without equivalent in MARC21
+    # Concatained into 505 field
+    for my $field ( $unimarc->field('359') ) {
+        my @a = map { $_->[1] } @{$field->subf};
+        $record->append( MARC::Moose::Field::Std->new(
+            tag => '505', ind1 => '0',
+            subf => [ [ a => join(' -- ', @a) ] ] ) );
+    }
+
+
     # 336 => 500
     for my $field ( $unimarc->field('336') ) {
         $record->append( MARC::Moose::Field::Std->new(
@@ -898,6 +976,25 @@ override 'format' => sub {
             $record->append( MARC::Moose::Field::Std->new(
                 tag => $to, ind1 => $ind1, ind2 =>$ind2, subf => \@sf ) );
         }
+    }
+
+    # 500 => 240 or 130
+    for my $field ( $unimarc->field('500') ) {
+        my ($ind1, $ind2) = ($field->ind1, $field->ind2);
+        my $tag = '240';
+        if ( $ind2 eq '0' ) {
+            $ind2 = 0;
+        }
+        elsif ( $ind2 eq '1' ) {
+            $tag = '130';
+            ($ind1, $ind2) = (0, ' ');
+        }
+        else {
+            ($ind1, $ind2) = (1, 0);
+        }
+        $record->append( MARC::Moose::Field::Std->new(
+            tag => $tag, ind1 => $ind1, ind2 => $ind2,
+            subf => $self->procedure_title($field->subf) ) );
     }
 
     # 545 => 773, on passe t en a
