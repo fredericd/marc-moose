@@ -1,6 +1,6 @@
 Revision history for Perl module MARC::Moose
 
-1.0.19 2014-01-24
+1.0.20 2014-01-24
 
   - Improve UnimarcToMarc21 converter
   - Improve linter
