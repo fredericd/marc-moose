@@ -19,6 +19,7 @@ has rules => (is => 'rw', isa => 'HashRef');
 
 has table => (is => 'rw', isa => 'HashRef', default => sub { {} });
 
+has tablecheck => (is => 'rw', isa => 'HashRef', default => sub { {} });
 
 
 sub _set_file {
@@ -93,8 +94,23 @@ sub _set_file {
     my $code;
     if ( /^====/ ) {
         while (1) {
-            if (/^==== *([A-Z]*)/) {
+            if (/^==== *([A-Z]*) *(.*)$/) {
                 ($code) = $1;
+                say $2;
+                for my $value ( split / +/, $2 ) {
+                    say $_;
+                    my $values = [ $code ];
+                    my $tag = substr($value, 0, 3);
+                    if ( $value = substr($value, 3) ) {
+                        push @$values, substr($value, 0, 1);
+                        $value = substr($value, 1);
+                    }
+                    if ( $value ) {
+                        my ($from, $len) = split /,/, $value;
+                        push @$values, $from, $len;
+                    }
+                    push @{ $self->tablecheck->{$tag} }, $values;
+                };
             }
             else {
                 $self->table->{$code}->{$_} = 1;
@@ -108,6 +124,8 @@ sub _set_file {
             s/ *$//;
         }
     }
+    use YAML;
+    say Dump( $self->tablecheck );
 }
 
 
@@ -163,6 +181,38 @@ sub check {
         }
         @fields = @$fields;
         $append->("non-repeatable field")  if !$repeatable && @fields > 1;
+
+        # Test tables
+        if ( my $checks = $self->tablecheck->{$tag} ) {
+            for my $check ( @$checks ) {
+                my ($code, $check_letter, $from, $len) = @$check;
+                my $table = $self->table->{$code};
+                unless ($table) {
+                    say "Unknown table specified in rules file: $table";
+                    exit;
+                }
+                $i_field = 1;
+                for my $field ( @fields ) {
+                    for ( @{$field->subf} ) {
+                        my ($letter, $value ) = @$_;
+                        next if $letter ne $check_letter;
+                        if ( $from ) {
+                            my $val = substr($value, $from);
+                            next unless $val;
+                            $val = substr($val, 0, $len);
+                            unless ( $table->{$val} ) {
+                                $append->("subfield \$$letter, position $from,$len, invalid coded value: $val");
+                            }
+                        }
+                        else {
+                            unless ( $table->{$value} ) {
+                                $append->("subfield \$$letter, invalid coded value: $value");
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         $i_field = 1;
 
@@ -367,6 +417,14 @@ This part of the file allows to define several validation tables. The table
 name begins with C<==== TABLE NAME> in uppercase. Then each line is a code in
 the validation table.
 
+This could be:
+
+ ==== LANG 100a22,3 101a
+
+In this case, the table will be used to validate coded values in coded fields.
+In this example, the language table will check 100$a subfield, position 22,
+length 3, and 101$a.
+
 =back
 
 This is for example, a simplified standard UNIMARC validation rules file:
@@ -414,7 +472,7 @@ This is for example, a simplified standard UNIMARC validation rules file:
  ZM
  ZW
 
- ==== LANG
+ ==== LANG 100a22,3 101a
  aar
  afh
  afr
