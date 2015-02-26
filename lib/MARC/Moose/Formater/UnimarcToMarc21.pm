@@ -219,8 +219,8 @@ sub procedure_title {
             push @sf, [ $to => $value ];
         }
         else {
-            given ($letter) {
-                when ( 'e' ) {
+            for ($letter) {
+                if ( /e/ ) {
                     next unless @sf; #FIXME warning required
                     if ( $sf[-1][0] =~ /a|n|p/ ) {
                         $sf[-1]->[1] .= ' :';
@@ -230,7 +230,7 @@ sub procedure_title {
                         $sf[-1]->[1] .= " : $value";
                     }
                 }
-                when ( 'i' ) {
+                elsif ( /i/ ) {
                     if ( @sf ) {
                         if ( $sf[-1]->[0] eq 'h' ) {
                             $sf[-1]->[1] .= ','  if $sf[-1]->[1] !~ /,$/;
@@ -270,12 +270,12 @@ override 'format' => sub {
         my @sf;
         for ( @{$field->subf} ) {
             my ($letter, $value) = @$_;
-            given ($letter) {
-                when ( /a|z/ ) {
+            for ($letter) {
+                if ( /a|z/ ) {
                     $value =~ s/-//g;
                     push @sf, [ $letter => $value ];
                 }
-                when ( /b/ ) {
+                elsif ( /b/ ) {
                     $value = "($value)" unless $value =~ /^\(/;
                     if (@sf) {
                         $sf[-1]->[1] .= " $value";
@@ -284,7 +284,7 @@ override 'format' => sub {
                         push @sf, [ c => $value ];
                     }
                 }
-                when ( /d/ ) {
+                elsif ( /d/ ) {
                     if (@sf) {
                         $sf[-1]->[1] .= " :";
                     }
@@ -302,16 +302,16 @@ override 'format' => sub {
         my (@sf, @price);
         for ( @{$field->subf} ) {
             my ($letter, $value) = @$_;
-            given ($letter) {
-                when ( /a/ ) {
+            for ($letter) {
+                if ( /a/ ) {
                     $value =~ s/-//g;
                     push @sf, [ a => $value ];
                 }
-                when ( /z/ ) {
+                elsif ( /z/ ) {
                     $value =~ s/-//g;
                     push @sf, [ y => $value ];
                 }
-                when ( /b|d/ ) {
+                elsif ( /b|d/ ) {
                     $value = "($value)" unless $value =~ /^\(/;
                     my $newlet = $letter eq 'b' ? 'b' : 'd';
                     push @price, [ $newlet => $value ];
@@ -403,8 +403,8 @@ override 'format' => sub {
         my (@sf, @sf_b);
         for (@all) {
             my ($letter, $value) = @$_;
-            given ($letter) {
-                when ( /a/ ) {
+            for ($letter) {
+                if ( /a/ ) {
                     next if $count_a >= 6;
                     $count_a++;
                     if ( $count_a == 1 ) {
@@ -414,14 +414,14 @@ override 'format' => sub {
                     }
                     push @sf, [ a => $value];
                 }
-                when ( /c/ ) { push @sf, [ h => $value ]; }
-                when ( /b/ ) { push @sf_b, $value; }
-                when ( /d/ ) { push @sf, [ b => $value ]; }
-                when ( /e/ ) { push @sf, [ f => $value ]; }
-                when ( /f|g/ ) { }
-                when ( /j/ ) { push @sf, [ b => $value ]; }
-                when ( /h/ ) { push @sf, [ e => $value ]; }
-                when ( /i/ ) { push @sf, [ g => $value ]; }
+                elsif ( /c/ ) { push @sf, [ h => $value ]; }
+                elsif ( /b/ ) { push @sf_b, $value; }
+                elsif ( /d/ ) { push @sf, [ b => $value ]; }
+                elsif ( /e/ ) { push @sf, [ f => $value ]; }
+                elsif ( /f|g/ ) { }
+                elsif ( /j/ ) { push @sf, [ b => $value ]; }
+                elsif ( /h/ ) { push @sf, [ e => $value ]; }
+                elsif ( /i/ ) { push @sf, [ g => $value ]; }
             }
         }
         if ( @sf_b ) {
@@ -466,10 +466,11 @@ override 'format' => sub {
     for my $field ( $unimarc->field('200') ) {
         my @sf;
         my ($a_index, $h_index) = (-1, -1);
+        SUBFIELD200:
         for ( @{$field->subf} ) {
             my ($letter, $value) = @$_;
-            given ($letter) {
-                when ( 'a' )   {
+            for ($letter) {
+                if ( /a/ )   {
                     if ( $a_index == -1 ) {
                         push @sf, [ a => $value ];
                         $a_index = $#sf;
@@ -478,7 +479,7 @@ override 'format' => sub {
                         $sf[$a_index]->[1] .= " ; $value";
                     }
                 }
-                when ( 'b')    { 
+                elsif ( /b/)    { 
                     if ( $h_index == -1 ) {
                         push @sf, [ h => $value ];
                         $h_index = $#sf;
@@ -492,12 +493,12 @@ override 'format' => sub {
                         }
                     }
                 }
-                when ( 'c' ) {
-                    next unless @sf; #FIXME warning required
+                elsif ( /c/ ) {
+                    next SUBFIELD200 unless @sf; #FIXME warning required
                     $sf[-1]->[1] .= ". $value";
                 }
-                when ( 'd' ) {
-                    next unless @sf; #FIXME warning required
+                elsif ( /d/ ) {
+                    next SUBFIELD200 unless @sf; #FIXME warning required
                     if ( $sf[-1]->[0] =~ /a|n|p/ ) {
                         $sf[-1]->[1] .= ' =';
                         $value =~ s/^= //;
@@ -507,8 +508,8 @@ override 'format' => sub {
                         $sf[-1]->[1] .= " = $value";
                     }
                 }
-                when ( 'e' ) {
-                    next unless @sf; #FIXME warning required
+                elsif ( /e/ ) {
+                    next SUBFIELD200 unless @sf; #FIXME warning required
                     if ( $sf[-1]->[0] =~ /a|n|p/ ) {
                         $sf[-1]->[1] .= ' :';
                         push @sf, [ b => $value ];
@@ -517,8 +518,8 @@ override 'format' => sub {
                         $sf[-1]->[1] .= " : $value";
                     }
                 }
-                when ( 'f') {
-                    next unless @sf; #FIXME warning required
+                elsif ( /f/) {
+                    next SUBFIELD200 unless @sf; #FIXME warning required
                     if ( $sf[-1]->[0] =~ /a|b|n|p/ ) {
                         $sf[-1]->[1] .= ' /';
                         push @sf, [ c => $value ];
@@ -527,12 +528,12 @@ override 'format' => sub {
                         $sf[-1]->[1] .= " / $value";
                     }
                 }
-                when ( 'g') {
-                    next unless @sf; #FIXME warning required
+                elsif ( /g/) {
+                    next SUBFIELD200 unless @sf; #FIXME warning required
                     $sf[-1]->[1] .= " ; $value";
                 }
-                when ( 'h' ) {
-                    next unless @sf; #FIXME warning required
+                elsif ( /h/ ) {
+                    next SUBFIELD200 unless @sf; #FIXME warning required
                     if ( $sf[-1]->[0] =~ /a|n|p/ ) {
                         $sf[-1]->[1] .= '.';
                         push @sf, [ n => $value ];
@@ -542,8 +543,8 @@ override 'format' => sub {
                         push @sf, [ n => $value ];
                     }
                 }
-                when ( 'i' ) {
-                    next unless @sf; #FIXME warning required
+                elsif ( /i/ ) {
+                    next SUBFIELD200 unless @sf; #FIXME warning required
                     if ( @sf && $sf[-1]->[0] =~ /a|n|p/ ) {
                         $sf[-1]->[1] .= ',';
                         push @sf, [ p => $value ];
@@ -552,7 +553,7 @@ override 'format' => sub {
                         $sf[-1]->[1] .= ". $value";
                     }
                 }
-                when ( /v|z|5|6|7/ ) { next }
+                elsif ( /v|z|5|6|7/ ) { next SUBFIELD200 }
             }
         }
         next unless @sf;
@@ -562,13 +563,13 @@ override 'format' => sub {
 
         # Indicators
         my ($ind1, $ind2) = ($field->ind1, 0);
-        given ($ind1) {
-            when ( /0/ ) { }
-            when ( /1/ ) {
+        for ($ind1) {
+            if ( /0/ ) { }
+            elsif ( /1/ ) {
                 #FIXME Test marc21 100/110/111/130 presence
                 $ind1 = $unimarc->field('700|710' ) ? 1 : 0;
             }
-            default { $ind1 = 1; }
+            else { $ind1 = 1; }
         }
         $record->append( MARC::Moose::Field::Std->new(
             tag => '245', ind1 => $ind1, ind2 => $ind2,
@@ -583,8 +584,8 @@ override 'format' => sub {
         my ($a_index, $b_index) = (-1, -1);
         for ( @{$field->subf} ) {
             my ($letter, $value) = @$_;
-            given ($letter) {
-                when ( /a/ ) {
+            for ($letter) {
+                if ( /a/ ) {
                     if ( $a_index == -1 ) {
                         push @sf, [ a => $value ];
                         $a_index = $#sf;
@@ -593,7 +594,7 @@ override 'format' => sub {
                         $sf[$a_index]->[1] .= ", $value";
                     }
                 }
-                when ( /b/ ) {
+                elsif ( /b/ ) {
                     if ( @sf ) {
                         $sf[-1]->[1] .= ", $value";
                     }
@@ -602,7 +603,7 @@ override 'format' => sub {
                         $a_index = $#sf;
                     }
                 }
-                when ( /d/ ) {
+                elsif ( /d/ ) {
                     if ( $b_index == -1 ) {
                         push @sf, [ b => $value];
                         $b_index = $#sf;
@@ -611,7 +612,7 @@ override 'format' => sub {
                         $sf[-1]->[1] .= " $value";
                     }
                 }
-                when ( /f/ ) {
+                elsif ( /f/ ) {
                     if ( $b_index == -1 ) {
                         $sf[-1]->[1] .= " / " if @sf;
                         push @sf, [ b => $value];
@@ -621,7 +622,7 @@ override 'format' => sub {
                         $sf[-1]->[1] .= " / $value";
                     }
                 }
-                when ( /g/ ) {
+                elsif ( /g/ ) {
                     if ( @sf ) { $sf[-1]->[1] .= " / $value"; }
                     else       { push @sf, [ a => $value ] }
                 }
@@ -651,8 +652,8 @@ override 'format' => sub {
         my $a_index = -1;
         for ( @{$field->subf} ) {
             my ($letter, $value) = @$_;
-            given ($letter) {
-                when ( /a/ ) {
+            for ($letter) {
+                if ( /a/ ) {
                     if ( $a_index == -1 ) {
                         push @sf, [ a => $value ];
                         $a_index = $#sf;
@@ -665,7 +666,7 @@ override 'format' => sub {
                         $sf[$a_index]->[1] = "$prev ; $value";
                     }
                 }
-                when ( /v/ ) {
+                elsif ( /v/ ) {
                     push @sf, [ z => $value ];
                 }
             }
@@ -687,11 +688,11 @@ override 'format' => sub {
             my ($letter, $value) = @$_;
             $value =~ s/^ *//, $value =~ s/ *$//;
             my %found;
-            given ($letter) {
-                when ( /a/ ) {
+            for ($letter) {
+                if ( /a/ ) {
                     push @sf, [ a => $value ];
                 }
-                when ( /b/ ) {
+                elsif ( /b/ ) {
                     $value = "($value)" if $value !~ /^\(/;
                     if ( @sf ) {
                         $sf[-1]->[1] .= " $value";
@@ -700,48 +701,48 @@ override 'format' => sub {
                         push @sf, [ a => $value ];
                     }
                 }
-                when ( /c/ ) {
+                elsif ( /c/ ) {
                     push @sf, [ b => $value ];
                 }
-                when ( /d/ ) {
+                elsif ( /d/ ) {
                     push @sf, [ c => $value ];
                 }
-                when ( /e/ ) {
+                elsif ( /e/ ) {
                     push @sf, [ e => $value ];
                 }
-                when ( /f/ ) {
+                elsif ( /f/ ) {
                     unless ( $found{$letter} ) {
                         $found{$letter} = 1;
                         $sf[-1]->[1] .= ", $value" if @sf;
                     }
                 }
-                when ( /g/ ) {
+                elsif ( /g/ ) {
                     unless ( $found{$letter} ) {
                         $found{$letter} = 1;
                         push @sf, [ f => $value ];
                     }
                 }
-                when ( /h/ ) {
+                elsif ( /h/ ) {
                     unless ( $found{$letter} ) {
                         $found{$letter} = 1;
                         push @sf, [ g => $value ];
                     }
                 }
-                when ( /j/ ) {
+                elsif ( /j/ ) {
                     $record->append( MARC::Moose::Field::Std->new(
                         tag => '265', subf => [ a => $value ] ) );
                 }
-                when ( /k/ ) {
+                elsif ( /k/ ) {
                     $record->append( MARC::Moose::Field::Std->new(
                         tag => '265', ind1 => '0', ind2 => '0',
                         subf => [ a => $value ] ) );
                 }
-                when ( /l/ ) {
+                elsif ( /l/ ) {
                     $record->append( MARC::Moose::Field::Std->new(
                         tag => '265', ind1 => '1', ind2 => '0',
                         subf => [ [  a => $value ] ] ) );
                 }
-                when ( /m/ ) {
+                elsif ( /m/ ) {
                     $record->append( MARC::Moose::Field::Std->new(
                         tag => '265', ind1 => '2', ind2 => '0',
                         subf => [ a => $value ] ) );
@@ -752,14 +753,14 @@ override 'format' => sub {
         # Ponctuation
         for (my $i=0; $i < @sf; $i++) {
             my ($letter, $value) = @{$sf[$i]};
-            given ($letter) {
-                when ( /a/ ) {
+            for ($letter) {
+                if ( /a/ ) {
                     $sf[$i-1]->[1] .= ' ;'  if $i;
                 }
-                when ( /b|f/ ) {
+                elsif ( /b|f/ ) {
                     $sf[$i-1]->[1] .= ' :'  if $i;
                 }
-                when ( /c|g/ ) {
+                elsif ( /c|g/ ) {
                     $sf[$i-1]->[1] .= ','  if $i;
                 }
             }
@@ -779,13 +780,14 @@ override 'format' => sub {
     # 215 => 300
     for my $field ( $unimarc->field('215') ) {
         my @sf;
+        SUBFIELD215:
         for ( @{$field->subf} ) {
             my ($letter, $value) = @$_;
             $value =~ s/^ *//, $value =~ s/ *$//;
-            given ($letter) {
-                when ( /c/ ) { $letter = 'b'; }
-                when ( /d/ ) { $letter = 'c'; }
-                when ( /6|7/ ) { next; }
+            for ($letter) {
+                if    ( /c/ ) { $letter = 'b'; }
+                elsif ( /d/ ) { $letter = 'c'; }
+                elsif ( /6|7/ ) { next SUBFIELD215; }
             }
             push @sf, [ $letter => $value ];
         }
@@ -793,10 +795,10 @@ override 'format' => sub {
         # Ponctuation
         for (my $i=1; $i < @sf; $i++) {
             my ($letter, $value) = @{$sf[$i]};
-            given ($letter) {
-                when ( /b/ ) { $sf[$i-1]->[1] .= ' :'; }
-                when ( /c/ ) { $sf[$i-1]->[1] .= ' ;'; }
-                when ( /e/ ) { $sf[$i-1]->[1] .= ' + '; }
+            for ($letter) {
+                if    ( /b/ ) { $sf[$i-1]->[1] .= ' :'; }
+                elsif ( /c/ ) { $sf[$i-1]->[1] .= ' ;'; }
+                elsif ( /e/ ) { $sf[$i-1]->[1] .= ' + '; }
             }
         }
         $sf[-1][1] = $sf[-1][1] . '.' if $sf[-1][1] !~ /\.$/;
@@ -811,16 +813,16 @@ override 'format' => sub {
             my ($letter, $value) = @$_;
             $value =~ s/^ *//, $value =~ s/ *$//;
             $value =~ s/\x88//g, $value =~ s/\x89//;
-            given ($letter) {
-                when ( /a/ ) { push @a, $value; }
-                when ( /d/ ) { push @a, " = $value" }
-                when ( /e/ ) { push @a, " : $value" }
-                when ( /f/ ) { push @a, " / $value" }
-                when ( /h/ ) { push @a, ". $value" }
-                when ( /i/ ) {
+            for ($letter) {
+                if    ( /a/ ) { push @a, $value; }
+                elsif ( /d/ ) { push @a, " = $value" }
+                elsif ( /e/ ) { push @a, " : $value" }
+                elsif ( /f/ ) { push @a, " / $value" }
+                elsif ( /h/ ) { push @a, ". $value" }
+                elsif ( /i/ ) {
                     push @a, $prev_letter eq 'h' ? ", $value " : ". $value";
                 }
-                when ( /v|x/ ) { push @vx, [ $letter => $value ] }
+                elsif ( /v|x/ ) { push @vx, [ $letter => $value ] }
             }
             $prev_letter = $letter;
         }
@@ -859,10 +861,8 @@ override 'format' => sub {
         # MAP, SERIALS
         my $type = 'SERIALS'; 
         my $new_field;
-        given ($type) {
-            when ( /SERIALS/ ) {
-                $new_field = $field->clone('310');
-            }
+        if ( $type =~ /SERIALS/ ) {
+            $new_field = $field->clone('310');
         }
         $record->append($new_field);
     }
@@ -1012,16 +1012,17 @@ override 'format' => sub {
         # Skip $6 and $7
         my @sf;
         my $date_available = 0;
+        SUFIELD600:
         for ( @{$field->subf} ) {
             my ($letter, $value) = @$_;
             $value =~ s/^ *//; $value =~ s/ *$//;
             next unless $value;
-            given ($letter) {
-                when ( /6|7/ ) { next; }
-                when ( /a|b/ ) { push @names, $value; next; }
-                when ( /f/   ) { $date_available = 1; $letter = 'd'; }
-                when ( /y/   ) { $letter = 'z'; }
-                when ( /z/   ) { $letter = 'y'; }
+            for ($letter) {
+                if    ( /6|7/ ) { next SUBFIELD600; }
+                elsif ( /a|b/ ) { push @names, $value; next; }
+                elsif ( /f/   ) { $date_available = 1; $letter = 'd'; }
+                elsif ( /y/   ) { $letter = 'z'; }
+                elsif ( /z/   ) { $letter = 'y'; }
             }
             push @sf, [ $letter => $value ];
         }
@@ -1093,11 +1094,11 @@ override 'format' => sub {
             my @codes;
             for ( @{$field->subf} ) {
                 my ($letter, $value) = @$_;
-                given ($letter) {
-                    when ( 'a' ) {
+                for ($letter) {
+                    if ( /a/ ) {
                         push @sf, [ a => $value ];
                     }
-                    when ( 'b' ) {
+                    elsif ( /b/ ) {
                         if ( @sf ) {
                             $sf[-1]->[1] .= ", $value";
                         }
@@ -1105,22 +1106,22 @@ override 'format' => sub {
                             push @sf, [ a => $value ];
                         }
                     }
-                    when ( 'c' ) {
+                    elsif ( /c/ ) {
                         $sf[-1]->[1] .= ',';
                         push @sf, [ c => $value ];
                     }
-                    when ( 'd' ) {
+                    elsif ( /d/ ) {
                         push @sf, [ b => $value ];
                     }
-                    when ( 'f' ) {
+                    elsif ( /f/ ) {
                         $sf[-1]->[1] .= ',' if @sf;
                         push @sf, [ d => $value ];
                     }
-                    when ( 'g' ) {
+                    elsif ( /g/ ) {
                         $sf[-1]->[1] .= '(';
                         push @sf, [ q => "$value)" ];
                     }
-                    when ( '4' ) {
+                    elsif ( /4/ ) {
                         next if $from eq '700' && $value eq '070';
                         my $code = $authcode{$value};
                         next unless $code;
@@ -1142,6 +1143,7 @@ override 'format' => sub {
 
     # Les collectivités 
     # Suppr sous $3, $6 et $7 $9
+    SUBFIELD_CORPORATE:
     for my $fromto ( ( [710, 110, 111], [711, 710, 711], [712, 710, 711] ) ) {
         my ($from, $to_corporate, $to_meeting) = @$fromto;
         for my $field ( $unimarc->field($from) ) {
@@ -1149,44 +1151,44 @@ override 'format' => sub {
             my @codes;
             for ( @{$field->subf} ) {
                 my ($letter, $value) = @$_;
-                given ($letter) {
-                    when ( 'a' ) {
+                for ($letter) {
+                    if ( /a/ ) {
                         push @sf, [ a => $value ];
                     }
-                    when ( 'g' ) {
+                    elsif ( /g/ ) {
                         $value = "($value)" unless $value =~ /^\(/;
                         $sf[-1]->[1] .= " $value" if @sf;
                     }
-                    when ( 'h' ) {
+                    elsif ( /h/ ) {
                         $sf[-1]->[1] .= " $value";
                     }
-                    when ( 'g' ) {
+                    elsif ( /g/ ) {
                         $sf[-1]->[1] .= " ($value)";
                     }
-                    when ( 'b' ) {
+                    elsif ( /b/ ) {
                         if ( @sf ) {
                             $sf[-1]->[1] .= '.' unless  $sf[-1]->[1] =~ /\.$/;
                         }
                         push @sf, [ b => $value ];
                     }
-                    when ( 'd' ) {
+                    elsif ( /d/ ) {
                         $value = "($value" unless $value =~ /^\(/;
                         push @sf, [ n => $value ];
                     }
-                    when ( 'e' ) {
+                    elsif ( /e/ ) {
                         $value = " :$value)";
                         push @sf, [ c => $value ];
                     }
-                    when ( 'f' ) {
+                    elsif ( /f/ ) {
                         $value = $sf[-1]->[0] eq 'n'
                                  ? " :$value"
                                  : "($value" if @sf;
                         push @sf, [ d => $value ];
                     }
-                    when ( '4' ) {
-                        next if $from eq '700' && $value eq '070';
+                    elsif ( /4/ ) {
+                        next SUBFIELD_CORPORATE if $from eq '700' && $value eq '070';
                         my $code = $authcode{$value};
-                        next unless $code;
+                        next SUBFIELD_CORPORATE unless $code;
                         push @codes, $code->[0];
                     }
                 }
