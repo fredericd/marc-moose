@@ -7,7 +7,7 @@ extends 'MARC::Moose::Formater';
 
 use MARC::Moose::Field::Control;
 use MARC::Moose::Field::Std;
-use XML::Writer 0.606;
+use XML::Writer;
 
 
 override 'begin' => sub {
@@ -41,9 +41,12 @@ override 'format' => sub {
             $w->startTag(
                 "datafield", tag => $field->tag, ind1 => $field->ind1,
                 ind2 => $field->ind2 );
-            for my $sf ( @{$field->subf} ) {
-                $w->startTag( "subfield", code => $sf->[0] );
-                $w->characters( $sf->[1] );
+            for ( @{$field->subf} ) {
+                my ($letter, $value) = @$_;
+                $w->startTag( "subfield", code => $letter );
+                # FIXME: XML::Writer should escape 1B (ESC) character, but it doesn't
+                $value =~ s/\x1B//g;
+                $w->characters( $value );
                 $w->endTag();
             }
             $w->endTag();
