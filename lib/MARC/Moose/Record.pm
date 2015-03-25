@@ -87,6 +87,22 @@ my $parser = {
 }
 
 
+=method clone()
+
+Clone the record. Create a new record containing exactly the same data.
+
+=cut
+
+sub clone {
+    my $self = shift;
+
+    my $record = MARC::Moose::Record->new();
+    $record->_leader( $self->leader );
+    $record->fields( [ map { $_->clone(); } @{$self->fields} ] );
+    return $record;
+}
+
+
 =method set_leader_length( I<length>, I<offset> )
 
 This method is called to reset leader length of record and offset of data
