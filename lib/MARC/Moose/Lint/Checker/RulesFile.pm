@@ -92,11 +92,10 @@ sub _set_file {
     $self->rules( \%rules );
 
     my $code;
-    if ( /^====/ ) {
+    if ( $_ && /^====/ ) {
         while (1) {
             if (/^==== *([A-Z]*) *(.*)$/) {
                 ($code) = $1;
-                say $2;
                 for my $value ( split / +/, $2 ) {
                     say $_;
                     my $values = [ $code ];
@@ -124,8 +123,6 @@ sub _set_file {
             s/ *$//;
         }
     }
-    use YAML;
-    say Dump( $self->tablecheck );
 }
 
 
@@ -176,6 +173,7 @@ sub check {
         ($tag, $mandatory, $repeatable) = @$rule;
         my $fields = $fields_by_tag->{$tag};
         unless ($fields) {
+            @fields = ();
             $append->("missing mandatory field") if $mandatory;
             next;
         }
