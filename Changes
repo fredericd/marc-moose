@@ -1,5 +1,9 @@
 Revision history for Perl module MARC::Moose
 
+1.0.26 2015-05-20
+
+  - Fix marcxml parsing, when indicator equals 0
+
 1.0.25 2015-04-30
 
   - Fix a bug in linting, displaying wrong tag repetition count

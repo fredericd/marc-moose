@@ -44,10 +44,12 @@ override 'parse' => sub {
                 s/<\/subfield//;
                 push @subf, [ $letter => $_ ];
             }
+            $ind1 = ' ' unless defined($ind1);
+            $ind2 = ' ' unless defined($ind2);
             push @fields, MARC::Moose::Field::Std->new(
                 tag => $tag,
-                ind1 => $ind1 || ' ',
-                ind2 => $ind2 || ' ',
+                ind1 => $ind1,
+                ind2 => $ind2,
                 subf => \@subf );
             shift @parts;
             next;

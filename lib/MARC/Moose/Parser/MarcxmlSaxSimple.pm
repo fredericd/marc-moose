@@ -29,8 +29,8 @@ override 'parse' => sub {
         my @sf = map { [ $_->{code}, $_->{content} ] }  @{$_->{subfield}};
         MARC::Moose::Field::Std->new(
             tag  => $_->{tag},
-            ind1 => $_->{ind1},
-            ind2 => $_->{ind2},
+            ind1 => defined($_->{ind1}) ? $_->{ind1} : ' ',
+            ind2 => defined($_->{ind2}) ? $_->{ind2} : ' ',
             subf => \@sf,
         ); 
     } @{$ref->{datafield}};

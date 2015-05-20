@@ -30,10 +30,14 @@ sub start_element {
     }
     elsif ( $name eq 'datafield' ) {
         my $attr = $element->{Attributes};
+        my $ind1 = $attr->{'{}ind1'}{Value};
+        $ind1 = ' ' unless defined($ind1);
+        my $ind2 = $attr->{'{}ind2'}{Value};
+        $ind2 = ' ' unless defined($ind2);
         $self->{field} = MARC::Moose::Field::Std->new(
             tag  => $attr->{'{}tag'}{Value},
-            ind1 => $attr->{'{}ind1'}{Value} || ' ',
-            ind2 => $attr->{'{}ind2'}{Value} || ' ',
+            ind1 => $ind1,
+            ind2 => $ind2,
         );
     }
     elsif ( $name eq 'subfield' ) {
