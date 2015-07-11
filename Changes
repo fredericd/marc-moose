@@ -1,5 +1,9 @@
 Revision history for Perl module MARC::Moose
 
+1.0.27 2015-06-11
+
+  - Fix encoding error in Legacy formater
+
 1.0.26 2015-05-20
 
   - Fix marcxml parsing, when indicator equals 0

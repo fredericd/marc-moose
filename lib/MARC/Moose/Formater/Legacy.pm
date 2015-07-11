@@ -19,14 +19,12 @@ override 'format' => sub {
         my $nfield;
         if ( $field->tag < 10 ) {
             my $value = $field->value;
-            utf8::decode($value);
             $nfield =  MARC::Field->new( $field->tag, $field->value );
         }
         else {
             my @sf;
             for (@{$field->subf}) {
                 my ($letter, $value) = @$_;
-                utf8::decode($value);
                 push @sf, $letter, $value if defined $value;
             }
             $nfield = MARC::Field->new(
