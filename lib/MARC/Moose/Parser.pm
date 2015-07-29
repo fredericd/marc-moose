@@ -19,7 +19,7 @@ A <MARC::Moose::Lint::Checker> which is associated with parsed records. This
 for them: C<$record->check()>.
 
 =cut
-has lint => (is => 'rw', isa => 'MARC::Moose::Lint::Checker');
+has lint => (is => 'rw');
 
 
 =method begin

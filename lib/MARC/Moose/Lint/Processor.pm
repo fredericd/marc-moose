@@ -16,7 +16,6 @@ A L<MARC::Moose::Lint::Checker> to be used to validate biblio record.
 =cut
 has lint => (
     is => 'rw',
-    isa => 'MARC::Moose::Lint::Checker'
 );
 
 

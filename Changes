@@ -1,5 +1,9 @@
 Revision history for Perl module MARC::Moose
 
+1.0.28 2015-06-29
+
+  - Fix linter to allow checker subclassing
+
 1.0.27 2015-06-11
 
   - Fix encoding error in Legacy formater
