@@ -2,8 +2,7 @@ package MARC::Moose::Formater::Iso2709;
 # ABSTRACT: MARC::Moose record formater into ISO 2709 format
 
 use Moose;
-use 5.010;
-use utf8;
+use Modern::Perl;
 
 extends 'MARC::Moose::Formater';
 
@@ -28,6 +27,7 @@ override 'format' => sub {
                 $str = $field->ind1 . $field->ind2 . $str . "\x1E";
             }
         };
+        utf8::encode($str) unless utf8::is_utf8($str);
         $fields .= $str;
         #FIXME: Which of this lines is the correct one?
         my $len = bytes::length($str);

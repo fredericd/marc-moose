@@ -1,5 +1,9 @@
 Revision history for Perl module MARC::Moose
 
+1.0.29 2016-01-30
+
+  - Fix ISO2709 formater when strings aren't utf8
+
 1.0.28 2015-06-29
 
   - Fix linter to allow checker subclassing
