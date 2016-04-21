@@ -1,5 +1,9 @@
 Revision history for Perl module MARC::Moose
 
+1.0.30 2016-04-21
+
+  - Marcxml parsing was failing when <record> element has an attribute. 
+
 1.0.29 2016-01-30
 
   - Fix ISO2709 formater when strings aren't utf8

@@ -35,7 +35,7 @@ sub read {
     $raw =~ s/<(\/*)collection.*>//;
 
     # End of file
-    return unless $raw =~ /<record>/;
+    return unless $raw =~ /<record.*>/;
 
     $self->parser->parse( $raw );
 }
