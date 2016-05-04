@@ -1,5 +1,9 @@
 Revision history for Perl module MARC::Moose
 
+1.0.31 2016-05-04
+
+  - Fix MARC::Moose::Field::Std->clone()
+
 1.0.30 2016-04-21
 
   - Marcxml parsing was failing when <record> element has an attribute. 

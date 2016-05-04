@@ -38,7 +38,7 @@ override 'clone' => sub {
     my ($self, $tag) = @_;
     my $field = MARC::Moose::Field::Std->new( tag => $self->tag );
     $field->tag($tag) if $tag;
-    $field->subf( [ map { $_ } @{$self->subf} ] );
+    $field->subf( [ map { [ $_->[0] => $_->[1] ] } @{$self->subf} ] );
     return $field;
 };
 
