@@ -1,5 +1,10 @@
 Revision history for Perl module MARC::Moose
 
+1.0.32 2016-06-07
+
+  - Fix Unimarc to MARC21 conversion for records above 010 without subfields
+  - Add Isis parsing format to marcmoose script
+
 1.0.31 2016-05-04
 
   - Fix MARC::Moose::Field::Std->clone()

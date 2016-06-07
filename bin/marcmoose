@@ -11,6 +11,7 @@ use MARC::Moose::Record;
 use MARC::Moose::Writer;
 use MARC::Moose::Reader::File::Iso2709;
 use MARC::Moose::Reader::File::Marcxml;
+use MARC::Moose::Reader::File::Isis;
 use YAML;
 
 
@@ -20,7 +21,7 @@ my $parser    = 'iso2709';
 my $formater  = 'text';
 my $output    = '';
 my $converter = '';
-GetOptions( 
+GetOptions(
     'verbose'       => \$verbose,
     'help'          => \$help,
     'p|parser=s'    => \$parser,
@@ -30,7 +31,7 @@ GetOptions(
 );
 
 usage() if $help ||
-           $parser !~ /iso2709|marcxml/ || 
+           $parser !~ /iso2709|marcxml|isis/ ||
            $formater !~ /text|iso2709|marcxml|json/ ||
            ( $converter && $converter !~ /unimarctomarc21/ );
 
@@ -58,7 +59,8 @@ if (@ARGV) {
         $reader =
             $parser =~ /iso2709/
             ? MARC::Moose::Reader::File::Iso2709->new( file => $_ )
-            : MARC::Moose::Reader::File::Marcxml->new( file => $_ ); 
+            : $parser =~ /isis/ ? MARC::Moose::Reader::File::Isis->new( file => $_ )
+            : MARC::Moose::Reader::File::Marcxml->new( file => $_ );
         readwrite();
     }
 }
@@ -66,7 +68,7 @@ else {
     $reader =
         $parser =~ /iso2709/
         ? MARC::Moose::Reader::File::Iso2709->new( fh => *STDIN )
-        : MARC::Moose::Reader::File::Marcxml->new( fh => *STDIN ); 
+        : MARC::Moose::Reader::File::Marcxml->new( fh => *STDIN );
     readwrite();
 }
 
@@ -75,7 +77,7 @@ $writer->end();
 
 sub usage {
     pod2usage( -verbose => 2 );
-} 
+}
 
 sub readwrite {
     while ( my $record = $reader->read() ) {
@@ -95,6 +97,7 @@ __END__
  marcmoose marc.iso
  marcmoose --formater text marc.iso
  marcmoose --formater json marc.iso
+ marcmoose --parser isis marc.iso
  marcmoose --converter unimarctomarc21 marc.iso
  marcmoose --parser marcxml --formater iso2709 --output marc.xml marc.iso
 
@@ -111,9 +114,10 @@ read from files or stdin.
 
 Display this help.
 
-=item -p|--parser iso2709|marcxml
+=item -p|--parser iso2709|marcxml|isis
 
-Parse input file. Two format are accepted: ISO2709 and MarcXML.
+Parse input file. Three formats are accepted: ISO2709, Isis and MarcXML. Isis
+(WinIsis equivalent) is just a ISO2709 file with some idiosyncrasies.
 
 =item -f|--formater text|json|iso2709|marcxml
 

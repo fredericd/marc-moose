@@ -7,7 +7,7 @@ use Carp;
 use MARC::Moose::Record;
 use MARC::Moose::Parser::Isis;
 
-extends 'MARC::Moose::Reader::File';
+with 'MARC::Moose::Reader::File';
 
 
 =attr parser
@@ -19,11 +19,13 @@ has '+parser' => ( default => sub { MARC::Moose::Parser::Isis->new() } );
 
 =cut
 
+has '+parser' => ( default => sub { MARC::Moose::Parser::Isis->new() } );
 
-override 'read' => sub {
+
+sub read {
     my $self = shift;
 
-    $self->SUPER::read();
+    $self->count( $self->count + 1 );
 
     my $fh = $self->fh;
     my $raw;
@@ -35,7 +37,7 @@ override 'read' => sub {
     return 0 unless $raw;
 
     return $self->parser->parse( $raw );
-};
+}
 
 __PACKAGE__->meta->make_immutable;
 

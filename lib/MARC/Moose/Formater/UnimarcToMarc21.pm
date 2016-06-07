@@ -1245,7 +1245,7 @@ override 'format' => sub {
 
     # Clean non-filing characters in all fields
     for my $field (@{$record->fields}) {
-        next if $field->tag lt '010';
+        next if ref $field eq 'MARC::Moose::Field::Control';
         for (@{$field->subf} ) {
             next if $_->[0] !~ /[a-z0-9]/;
             $_->[1] =~ s/\x08|\x09//g;
