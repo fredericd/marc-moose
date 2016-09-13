@@ -1012,7 +1012,7 @@ override 'format' => sub {
         # Skip $6 and $7
         my @sf;
         my $date_available = 0;
-        SUFIELD600:
+        SUBFIELD600:
         for ( @{$field->subf} ) {
             my ($letter, $value) = @$_;
             $value =~ s/^ *//; $value =~ s/ *$//;
