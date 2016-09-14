@@ -1285,9 +1285,9 @@ into MARC21:
 
  my $reader = MARC::Moose::Reader::File::Iso2709->new(
    file => 'biblio-unimarc.iso' );
- my $writer = MARC::Moose::Writer::File->new(
-   file => 'biblio-marc21.iso',
-   formater => MARC::Moose::Formater::Iso2709->new()
+ my $writer = MARC::Moose::Writer->new(
+   fh => IO::File->new('koha.mrc', '>:encoding(utf8)'),
+   formater => MARC::Moose::Formater::Iso2709->new() )
  );
  my $tomarc21 = MARC::Moose::Formater::UnimarcToMarc21->new();
  while ( my $unimarc = $reader->read() ) {
