@@ -35,16 +35,7 @@ sub _set_file {
     my @parts;
     my $linenumber = 0;
     my %rules;
-    while (<$fh>) {
-        $linenumber++;
-        chop;
-        s/ *$//;
-        last if /^====/;
-
-        if ( length($_) ) {
-            push @parts, $_;
-            next;
-        }
+    my $analyze = sub {
         #say;
         my $tag = shift @parts;
         if ( $tag !~ /^([0-9]{3})[_|\+]*/ ) {
@@ -88,7 +79,20 @@ sub _set_file {
         $rules{$tag_digit} = \@rule;
 
         @parts = ();
+    };
+    while (<$fh>) {
+        $linenumber++;
+        chop;
+        s/ *$//;
+        last if /^====/;
+
+        if ( length($_) ) {
+            push @parts, $_;
+            next;
+        }
+        $analyze->();
     }
+    $analyze->() if @parts;
     $self->rules( \%rules );
 
     my $code;
