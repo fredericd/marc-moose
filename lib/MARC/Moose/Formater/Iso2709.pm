@@ -27,11 +27,11 @@ override 'format' => sub {
                 $str = $field->ind1 . $field->ind2 . $str . "\x1E";
             }
         };
-        utf8::encode($str) unless utf8::is_utf8($str);
+        #utf8::encode($str) unless utf8::is_utf8($str);
         $fields .= $str;
         #FIXME: Which of this lines is the correct one?
-        my $len = bytes::length($str);
-        #my $len = length($str);
+        #my $len = bytes::length($str);
+        my $len = length($str);
         $directory .= sprintf( "%03s%04d%05d", $field->tag, $len, $from );
         $from += $len;
     }
