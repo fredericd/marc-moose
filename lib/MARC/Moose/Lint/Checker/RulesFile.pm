@@ -116,13 +116,13 @@ sub _set_file {
                 };
             }
             else {
-                $self->table->{$code}->{$_} = 1;
+                $self->table->{$code}->{$_} = 1 if length($_) > 0;
             }
             while (<$fh>) {
                 chop;
-                last if $_;
+                last if defined $_;
             }
-            last unless $_;
+            last unless defined $_;
             if ( length($_) > 1 ) {
                 s/^ *//;
                 s/ *$//;
@@ -204,12 +204,12 @@ sub check {
                             my $val = substr($value, $from);
                             next unless $val;
                             $val = substr($val, 0, $len);
-                            unless ( $table->{$val} ) {
+                            unless ( exists $table->{$val} ) {
                                 $append->("subfield \$$letter, position $from,$len, invalid coded value: '$val'");
                             }
                         }
                         else {
-                            unless ( $table->{$value} ) {
+                            unless ( exists $table->{$value} ) {
                                 $append->("subfield \$$letter, invalid coded value (without from): '$value'");
                             }
                         }
