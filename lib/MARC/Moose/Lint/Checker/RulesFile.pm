@@ -123,8 +123,10 @@ sub _set_file {
                 last if $_;
             }
             last unless $_;
-            s/^ *//;
-            s/ *$//;
+            if ( length($_) > 1 ) {
+                s/^ *//;
+                s/ *$//;
+            }
         }
     }
 }
@@ -198,17 +200,17 @@ sub check {
                     for ( @{$field->subf} ) {
                         my ($letter, $value ) = @$_;
                         next if $letter ne $check_letter;
-                        if ( $from ) {
+                        if ( length($from) > 0 ) {
                             my $val = substr($value, $from);
                             next unless $val;
                             $val = substr($val, 0, $len);
                             unless ( $table->{$val} ) {
-                                $append->("subfield \$$letter, position $from,$len, invalid coded value: $val");
+                                $append->("subfield \$$letter, position $from,$len, invalid coded value: '$val'");
                             }
                         }
                         else {
                             unless ( $table->{$value} ) {
-                                $append->("subfield \$$letter, invalid coded value: $value");
+                                $append->("subfield \$$letter, invalid coded value (without from): '$value'");
                             }
                         }
                     }
@@ -425,7 +427,9 @@ This could be:
 
 In this case, the table will be used to validate coded values in coded fields.
 In this example, the language table will check 100$a subfield, position 22,
-length 3, and 101$a.
+length 3, and 101$a. A table must contain all possible values. It not possible
+to use regular expressions. If you can have a blank value, you need a line
+containing juste a blank.
 
 =back
 
