@@ -123,10 +123,6 @@ sub _set_file {
                 last if defined $_;
             }
             last unless defined $_;
-            if ( length($_) > 1 ) {
-                s/^ *//;
-                s/ *$//;
-            }
         }
     }
 }
