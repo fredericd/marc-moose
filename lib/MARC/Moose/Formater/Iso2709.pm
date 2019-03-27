@@ -2,6 +2,7 @@ package MARC::Moose::Formater::Iso2709;
 # ABSTRACT: MARC::Moose record formater into ISO 2709 format
 
 use Moose;
+use utf8;
 use Modern::Perl;
 
 extends 'MARC::Moose::Formater';
@@ -30,8 +31,8 @@ override 'format' => sub {
         #utf8::encode($str) unless utf8::is_utf8($str);
         $fields .= $str;
         #FIXME: Which of this lines is the correct one?
-        #my $len = bytes::length($str);
-        my $len = length($str);
+        my $len = bytes::length($str);
+        #my $len = length($str);
         $directory .= sprintf( "%03s%04d%05d", $field->tag, $len, $from );
         $from += $len;
     }
