@@ -681,8 +681,8 @@ override 'format' => sub {
 
     #TODO 208
 
-    # 210 => 260
-    for my $field ( $unimarc->field('210') ) {
+    # 210/214 => 260
+    for my $field ( $unimarc->field('210|214') ) {
         my @sf;
         for ( @{$field->subf} ) {
             my ($letter, $value) = @$_;
