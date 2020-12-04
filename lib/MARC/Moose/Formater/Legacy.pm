@@ -29,8 +29,8 @@ override 'format' => sub {
             }
             $nfield = MARC::Field->new(
                 $field->tag,
-                $field->ind1 || ' ',
-                $field->ind2 || ' ', @sf ) if @sf;
+                (defined $field->ind1 ) ? $field->ind1 : ' ',
+                (defined $field->ind2 ) ? $field->ind2 : ' ', @sf ) if @sf;
         }
         $marc->append_fields($nfield) if $nfield;
     }
