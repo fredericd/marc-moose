@@ -1023,8 +1023,8 @@ override 'format' => sub {
                 elsif ( /f/   ) { $date_available = 1; $letter = 'd'; }
                 elsif ( /y/   ) { $letter = 'z'; }
                 elsif ( /z/   ) { $letter = 'y'; }
+                push @sf, [ $letter => $value ];
             }
-            push @sf, [ $letter => $value ];
         }
         my @sf_complete;
         my $notpushed = 1;
