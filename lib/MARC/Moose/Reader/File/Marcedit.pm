@@ -27,6 +27,20 @@ sub read {
     return if eof($fh);
 
     my @lines;
+
+    # Next record
+    my $found = 0;
+    while (<$fh>) {
+        $found = $_ =~ /^=LDR/;
+        if ($found) {
+            s/\n$//;
+            s/\r$//;
+            push @lines, $_;
+            last;
+        }
+    }
+    return unless $found;
+
     while (<$fh>) {
         s/\n$//;
         s/\r$//;
